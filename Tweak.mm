@@ -122,6 +122,7 @@
     static BOOL hasStarted = NO;
     static BOOL longPress = NO;
     static BOOL handWriting = NO;
+    static BOOL haveCheckedHand = NO;
 
     int touchesCount = [gesture numberOfTouches];
     if (touchesCount > numberOfTouches) {
@@ -134,11 +135,6 @@
 
     UIKeyboardImpl *keyboardImpl = self;//[%c(UIKeyboardImpl) sharedInstance];
 
-    id currentLayout = nil;
-    if ([keyboardImpl respondsToSelector:@selector(_layout)]) {
-        currentLayout = [keyboardImpl _layout];
-    }
-
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         BOOL nLongTouch = [keyboardImpl isLongPress];
         if (nLongTouch) {
@@ -146,26 +142,23 @@
         }
     }
 
-    // Is UIKeyboardLayoutEmoji_iPhone or UIKeyboardLayoutEmoji_iPad actually.
-    Class emojiLayoutClass = %c(UIKeyboardLayoutEmoji);
-    // Hence use of isKindOfClass:
-    if ([currentLayout isKindOfClass:emojiLayoutClass]) {
-        return;
+    id currentLayout = nil;
+    if ([keyboardImpl respondsToSelector:@selector(_layout)]) {
+        currentLayout = [keyboardImpl _layout];
     }
+
     // Chinese handwriting check - (hacky)
-    if ([currentLayout respondsToSelector:@selector(subviews)] && !handWriting) {
-        unsigned index = 1;
-        NSArray *subviews = ((UIView*)currentLayout).subviews;
-        if ([subviews count] > index) {
-            UIView *subview = [subviews objectAtIndex:index];
+    if ([currentLayout respondsToSelector:@selector(subviews)] && !handWriting && !haveCheckedHand) {
+        NSArray *subviews = [((UIView*)currentLayout) subviews];
+        for (UIView *subview in subviews) {
 
             if ([subview respondsToSelector:@selector(subviews)]) {
                 NSArray *arrayToCheck = [subview subviews];
-                
+
                 for (id view in arrayToCheck) {
                     NSString *classString = [NSStringFromClass([view class]) lowercaseString];
                     NSString *substring = [@"Handwriting" lowercaseString];
-                    
+
                     if ([classString rangeOfString:substring].location != NSNotFound) {
                         handWriting = YES;
                         break;
@@ -173,6 +166,7 @@
                 }
             }
         }
+        haveCheckedHand = YES;
     }
 
 
@@ -192,6 +186,7 @@
         numberOfTouches = 0;
         gesture.cancelsTouchesInView = NO;
         handWriting = NO;
+        haveCheckedHand = NO;
     }
     else if (longPress || handWriting) {
         return;
@@ -335,19 +330,14 @@
 
 - (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
     UIKeyboardImpl *keyboardImpl = [%c(UIKeyboardImpl) sharedInstance];
-    id currentLayout = nil;
     BOOL longPress = NO;
-    if ([keyboardImpl respondsToSelector:@selector(_layout)]) {
-        currentLayout = [keyboardImpl _layout];
-    }
+
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         longPress = [keyboardImpl isLongPress];
     }
 
-    // Is UIKeyboardLayoutEmoji_iPhone or UIKeyboardLayoutEmoji_iPad actually.
-    Class emojiLayoutClass = %c(UIKeyboardLayoutEmoji);
-    // Hence use of isKindOfClass:
-    if ([currentLayout isKindOfClass:emojiLayoutClass] || longPress) {
+    // Seperate from the if statement in case of change in later iOS version I can add a second check above.
+    if (longPress) {
         return NO;
     }
 
