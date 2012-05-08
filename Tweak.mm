@@ -3,6 +3,37 @@
 #import <UIKit/UIKit.h>
 #import <UIKit/UIGestureRecognizerSubclass.h>
 
+
+@interface DOMNode : NSObject
+@end
+
+@interface UIThreadSafeNode : NSObject {
+	DOMNode *_node; 
+}
+-(id)_realNode;
+@end
+
+@interface DOMHTMLInputElement : NSObject
+-(NSString*)text;
+
+-(void)setSelectionRange:(int)start end:(int)end;
+-(void)setSelectionEnd:(int)arg1;
+-(int)selectionEnd;
+-(void)setSelectionStart:(int)arg1;
+-(int)selectionStart;
+@end
+
+@interface DOMHTMLTextAreaElement : NSObject
+-(NSString*)text;
+
+-(void)setSelectionRange:(int)start end:(int)end;
+-(void)setSelectionEnd:(int)arg1;
+-(int)selectionEnd;
+-(void)setSelectionStart:(int)arg1;
+-(int)selectionStart;
+@end
+
+
 @protocol UITextInputPrivate <UITextInput>//, UITextInputTokenizer, UITextInputTraits_Private, UITextSelectingContainer>
 -(BOOL)shouldEnableAutoShift;
 -(NSRange)selectionRange;
@@ -79,13 +110,18 @@
 
 %new
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture{
+
+    // Location info (may change)
     static CGPoint startPoint;
     static NSRange startRange;
     static NSRange newRange;
+
+    // Basic info
     static BOOL shiftHeldDown = NO;
     static int numberOfTouches = 0;
     static BOOL hasStarted = NO;
     static BOOL longPress = NO;
+    static BOOL handWriting = NO;
 
     int touchesCount = [gesture numberOfTouches];
     if (touchesCount > numberOfTouches) {
@@ -94,6 +130,7 @@
 
     Class webDocumentViewClass = %c(UIWebDocumentView);
     Class textFieldClass = %c(UIFieldEditor);
+    Class threadSafeNode = %c(UIThreadSafeNode);
 
     UIKeyboardImpl *keyboardImpl = self;//[%c(UIKeyboardImpl) sharedInstance];
 
@@ -115,6 +152,28 @@
     if ([currentLayout isKindOfClass:emojiLayoutClass]) {
         return;
     }
+    // Chinese handwriting check - (hacky)
+    if ([currentLayout respondsToSelector:@selector(subviews)] && !handWriting) {
+        unsigned index = 1;
+        NSArray *subviews = ((UIView*)currentLayout).subviews;
+        if ([subviews count] > index) {
+            UIView *subview = [subviews objectAtIndex:index];
+
+            if ([subview respondsToSelector:@selector(subviews)]) {
+                NSArray *arrayToCheck = [subview subviews];
+                
+                for (id view in arrayToCheck) {
+                    NSString *classString = [NSStringFromClass([view class]) lowercaseString];
+                    NSString *substring = [@"Handwriting" lowercaseString];
+                    
+                    if ([classString rangeOfString:substring].location != NSNotFound) {
+                        handWriting = YES;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 
     if ([keyboardImpl respondsToSelector:@selector(callLayoutIsShiftKeyBeingHeld)] && !shiftHeldDown) {
@@ -132,8 +191,9 @@
         hasStarted = NO;
         numberOfTouches = 0;
         gesture.cancelsTouchesInView = NO;
+        handWriting = NO;
     }
-    else if (longPress) {
+    else if (longPress || handWriting) {
         return;
     }
     else if (gesture.state == UIGestureRecognizerStateBegan) {
@@ -155,12 +215,27 @@
                     }
                 }
             }
+            else if ([privateInputDelegate isKindOfClass:threadSafeNode]) {
+                DOMHTMLInputElement *textView = privateInputDelegate;
+
+                int start = 0;
+                if ([textView respondsToSelector:@selector(selectionStart)]) {
+                    start = [textView selectionStart];
+                }
+
+                int end = 0;
+                if ([textView respondsToSelector:@selector(selectionEnd)]) {
+                    end = [textView selectionEnd];
+                }
+
+                startRange = NSMakeRange(start, (end - start));
+            }
         }
 	}
 	else if (gesture.state == UIGestureRecognizerStateChanged) {
 		CGPoint offset = [gesture translationInView:self];
 
-        if (!hasStarted && offset.x < 5 && offset.x > -5) {
+        if (!hasStarted && offset.x < 8 && offset.x > -8) {
             return;
         }
         gesture.cancelsTouchesInView = YES;
@@ -233,6 +308,16 @@
                     }
                 }
             }
+            else if ([privateInputDelegate isKindOfClass:threadSafeNode]) {
+                DOMHTMLInputElement *textView = privateInputDelegate;
+
+                if ([textView respondsToSelector:@selector(setSelectionStart:)]) {
+                    [textView setSelectionStart:newRange.location];
+                }
+                if ([textView respondsToSelector:@selector(setSelectionEnd:)]) {
+                    [textView setSelectionEnd:(newRange.location + newRange.length)];
+                }
+            }
         }
 	}
 }
@@ -241,6 +326,10 @@
 
 @implementation KHPanGestureRecognizer
 - (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer{
+    if ([preventingGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+        return YES;
+    }
+
     return NO;
 }
 
@@ -254,7 +343,7 @@
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         longPress = [keyboardImpl isLongPress];
     }
-    
+
     // Is UIKeyboardLayoutEmoji_iPhone or UIKeyboardLayoutEmoji_iPad actually.
     Class emojiLayoutClass = %c(UIKeyboardLayoutEmoji);
     // Hence use of isKindOfClass:
