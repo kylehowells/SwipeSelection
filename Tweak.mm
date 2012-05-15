@@ -123,6 +123,7 @@
     static BOOL longPress = NO;
     static BOOL handWriting = NO;
     static BOOL haveCheckedHand = NO;
+    static BOOL goHomeEnd = NO;
 
     int touchesCount = [gesture numberOfTouches];
     if (touchesCount > numberOfTouches) {
@@ -187,6 +188,7 @@
         gesture.cancelsTouchesInView = NO;
         handWriting = NO;
         haveCheckedHand = NO;
+        goHomeEnd = NO;
     }
     else if (longPress || handWriting) {
         return;
@@ -237,8 +239,10 @@
         hasStarted = YES;
 
         int scale = 16;
-        if (numberOfTouches >= 2) {
+        if (numberOfTouches == 2) {
             scale = 8; // make it go faster
+        } else if (numberOfTouches == 3) {
+            goHomeEnd = YES;
         }
 
         // Get caracters back it should go
@@ -255,7 +259,10 @@
             }
         }
 
-        if (shiftHeldDown) {
+        if (goHomeEnd) {
+        	newLocaation = offset.x > 0 ? 0 : textLength;
+        	newLength = 0;
+        } else if (shiftHeldDown) {
             if (pointsChanged > 0) {
                 newLength += pointsChanged;
                 
