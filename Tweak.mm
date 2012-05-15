@@ -260,7 +260,7 @@
         }
 
         if (goHomeEnd) {
-        	newLocaation = offset.x > 0 ? 0 : textLength;
+        	newLocation = offset.x > 0 ? 0 : textLength;
         	newLength = 0;
         } else if (shiftHeldDown) {
             if (pointsChanged > 0) {
