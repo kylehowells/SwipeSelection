@@ -58,6 +58,7 @@
 @property (readonly, assign, nonatomic) UIResponder <UITextInputPrivate> *privateInputDelegate;
 @property (readonly, assign, nonatomic) UIResponder <UITextInput> *inputDelegate;
 -(BOOL)isLongPress;
+-(BOOL)hasStarted;
 -(id)_layout;
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
@@ -233,8 +234,12 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 		CGPoint delta = CGPointMake(position.x - previousPosition.x, position.y - previousPosition.y);
 
         // Should we even run?
-        CGFloat deadZone = 10;
+        CGFloat deadZone = 200; // RalphBln: changed to 200 for lower sensitivity
         if (!hasStarted && delta.x < deadZone && delta.x > (-deadZone)) {
+            return;
+        }
+        // RalphBln: ignore vertical swipes, i.e. more than 45° up or down
+        if (!hasStarted && fabs(delta.x) < fabs(delta.y)) {
             return;
         }
         // We are running so shut other things off/down
@@ -411,16 +416,25 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 - (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
     UIKeyboardImpl *keyboardImpl = [%c(UIKeyboardImpl) sharedInstance];
     BOOL longPress = NO;
+    BOOL hasStarted = NO;
 
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         longPress = [keyboardImpl isLongPress];
     }
-
+    
+    if ([keyboardImpl respondsToSelector:@selector(hasStarted)]) {
+        hasStarted = [keyboardImpl hasStarted];
+    }
+    
     // Seperate from the if statement in case of change in later iOS version I can add a second check above.
     if (longPress) {
         return NO;
     }
-
+    
+    if (!hasStarted) {
+        return NO;
+    }
+    
     return [super canPreventGestureRecognizer:gestureRecognizer];
 }
 @end
