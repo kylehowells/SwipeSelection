@@ -57,8 +57,8 @@
 +(id)sharedInstance;
 @property (readonly, assign, nonatomic) UIResponder <UITextInputPrivate> *privateInputDelegate;
 @property (readonly, assign, nonatomic) UIResponder <UITextInput> *inputDelegate;
+@property (readonly, assign, nonatomic) BOOL hasStarted;
 -(BOOL)isLongPress;
--(BOOL)hasStarted;
 -(id)_layout;
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
