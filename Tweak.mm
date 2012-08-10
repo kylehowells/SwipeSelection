@@ -57,7 +57,6 @@
 +(id)sharedInstance;
 @property (readonly, assign, nonatomic) UIResponder <UITextInputPrivate> *privateInputDelegate;
 @property (readonly, assign, nonatomic) UIResponder <UITextInput> *inputDelegate;
-@property (readonly, assign, nonatomic) BOOL hasStarted;
 -(BOOL)isLongPress;
 -(id)_layout;
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
@@ -416,25 +415,16 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 - (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
     UIKeyboardImpl *keyboardImpl = [%c(UIKeyboardImpl) sharedInstance];
     BOOL longPress = NO;
-    BOOL hasStarted = NO;
 
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         longPress = [keyboardImpl isLongPress];
     }
-    
-    if ([keyboardImpl respondsToSelector:@selector(hasStarted)]) {
-        hasStarted = [keyboardImpl hasStarted];
-    }
-    
+
     // Seperate from the if statement in case of change in later iOS version I can add a second check above.
     if (longPress) {
         return NO;
     }
-    
-    if (!hasStarted) {
-        return NO;
-    }
-    
+
     return [super canPreventGestureRecognizer:gestureRecognizer];
 }
 @end
