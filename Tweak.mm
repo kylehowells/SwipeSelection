@@ -53,30 +53,31 @@
 @end
 
 
+@interface UIKeyboardImpl : UIView
++(id)sharedInstance;
+@property (readonly, assign, nonatomic) UIResponder <UITextInputPrivate> *privateInputDelegate;
+@property (readonly, assign, nonatomic) UIResponder <UITextInput> *inputDelegate;
+-(BOOL)isLongPress;
+-(id)_layout;
+-(BOOL)callLayoutIsShiftKeyBeingHeld;
+-(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
+@end
+
 
 #pragma mark - Helper functions
-UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction, int times);
-UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction, int times){
-    
-    UITextPosition *endPosition = startPosition;
+UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction);
+UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction){
 
-    if (tokenizer && endPosition) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        for (int i = 0; i < times; i++) {
-            endPosition = [tokenizer positionFromPosition:endPosition toBoundary:granularity inDirection:direction];
-        }
-        [endPosition retain];
-        [pool release];
+    if (tokenizer && startPosition) {
+        return [tokenizer positionFromPosition:startPosition toBoundary:granularity inDirection:direction];
     }
 
-    return [endPosition autorelease];
+    return nil;
 }
 BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *position1, UITextPosition *position2);
 BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *position1, UITextPosition *position2){
     return ([tokenizer comparePosition:position1 toPosition:position2] == NSOrderedSame);
 }
-
-
 
 
 #pragma mark - GestureRecognizer
@@ -106,7 +107,6 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
     // Location info (may change)
     static UITextRange *startingtextRange = nil;
     static CGPoint previousPosition;
-    static CGFloat leftOverDelta = 0;
 
     // Basic info
     static BOOL shiftHeldDown = NO;
@@ -208,7 +208,6 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         haveCheckedHand = NO;
 
         touchesCount = 0;
-        leftOverDelta = 0;
         touchesWhenShiting = 0;
         gesture.cancelsTouchesInView = NO;
     }
@@ -232,32 +231,23 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
         CGPoint position = [gesture locationInView:self];
 		CGPoint delta = CGPointMake(position.x - previousPosition.x, position.y - previousPosition.y);
-        
-        CGFloat deltaX = delta.x + leftOverDelta;
-        deltaX = (deltaX * (1 + ([gesture velocityInView:self].x * 0.2)));
-        
-        // Make x & y positive for comparision
-        CGFloat positiveX = ((deltaX >= 0) ? deltaX : (-deltaX));
-        
-//        NSLog(@"positiveX: %.2f", positiveX);
-//        NSLog(@"gesture.velocity.x: %.2f", gesture.velocity.x);
-//        NSLog(@"delta.x: %.2f", delta.x);
-//        NSLog(@"Test");
-        
+
         // Should we even run?
         CGFloat deadZone = 10;
-        if (!hasStarted && (positiveX < deadZone)) {
+        if (!hasStarted && delta.x < deadZone && delta.x > (-deadZone)) {
             return;
         }
         // We are running so shut other things off/down
         gesture.cancelsTouchesInView = YES;
         hasStarted = YES;
 
+        // Make x & y positive for comparision
+        CGFloat positiveX = ((delta.x >= 0) ? delta.x : (-delta.x));
 //        CGFloat positiveY = ((delta.y >= 0) ? delta.y : (-delta.y));
 
         // Determine the direction it should be going in
         UITextDirection textDirection;
-        if (deltaX < 0) {
+        if (delta.x < 0) {
             textDirection = UITextStorageDirectionBackward;
         }
         else {
@@ -266,7 +256,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
         
         // Only do these new big 'jumps' if we've moved far enough
-        CGFloat xMinimum = 8;
+        CGFloat xMinimum = 12;
 //        CGFloat yMinimum = 1;
 
         CGFloat neededTouches = 2;
@@ -297,7 +287,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         // If this is the first run we are selecting then pick our pivot point
         if (isFirstShiftDown) {
             [pivotPoint release], pivotPoint = nil;
-            if (deltaX > 0){ // || delta.y < -20) {
+            if (delta.x > 0 || delta.y < -20) {
                 pivotPoint = [positionStart retain];
             }
             else {
@@ -315,7 +305,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
             }
         }
         else {
-            _position = (deltaX > 0) ? positionEnd : positionStart;
+            _position = (delta.x > 0) ? positionEnd : positionStart;
 
             if (!pivotPoint) {
                 pivotPoint = _position;
@@ -347,7 +337,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
             if (positiveX >= 1) {
                 UITextPosition *_position_old = _position;
 
-                _position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, granularity, textDirection, ((int)(positiveX / xMinimum)));
+                _position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, granularity, textDirection);
                 
                 // If I tried to move it and got nothing back reset it to what I had.
                 if (!_position){ _position = _position_old; }
@@ -355,8 +345,9 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
                 // If I tried to move it a word at a time and nothing happened
                 if (granularity == UITextGranularityWord && (KH_positionsSame(privateInputDelegate, currentRange.start, _position) &&
                                                              !KH_positionsSame(privateInputDelegate, privateInputDelegate.beginningOfDocument, _position))) {
+                    
+                    _position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, UITextGranularityCharacter, textDirection);
                     xMinimum = 4;
-                    _position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, UITextGranularityCharacter, textDirection, ((int)(positiveX / xMinimum)));
                 }
                 
                 // Another sanity check
@@ -401,20 +392,8 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y)) {
             [privateInputDelegate setSelectedTextRange:textRange];
         }
-        
-        int times = (positiveX / xMinimum);
-        CGFloat amountUsed = (xMinimum * times);
-        if (deltaX < 0) {
-            leftOverDelta = (deltaX + amountUsed);
-        }
-        else {
-            leftOverDelta = (deltaX - amountUsed);
-        }
 	}
 }
-
-//TODO, BROKEN
-//#warning doesn't work
 
 %end
 
