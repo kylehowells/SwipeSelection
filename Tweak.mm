@@ -381,7 +381,9 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
                 }
                 
                 // Another sanity check
-                if (!_position || positiveX < xMinimum){ _position = _position_old; }
+                if (!_position || positiveX < xMinimum){
+					_position = _position_old;
+				}
             }
 
             // Move Y
@@ -457,40 +459,37 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
 
 
+
 //
 // Code from : @iamharicc
 //
 // iAmharic <iamharic@gmail.com>
 //
 
+
 static BOOL shiftByDelete;
-static BOOL isDoubleTapDelete;
+static BOOL isLongPressed;
+static BOOL isDeleteKey;
+
 
 %hook UIKeyboardLayoutStar
 /*==============touchesBegan================*/
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
-	if ([[touches anyObject] tapCount] == 2 && [key isEqualToString:@"delete"]) {
-		isDoubleTapDelete = YES;
+	if ([key isEqualToString:@"delete"]) {
+		isDeleteKey = YES;
 	}
 	else {
-		isDoubleTapDelete = NO;
+		isDeleteKey = NO;
 	}
 	
-	if (![key isEqualToString:@"delete"] || isDoubleTapDelete) {
-		%orig(touches, event);
-	}
-	else{
-		
-	}
+	%orig;
 }
 
 /*==============touchesMoved================*/
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
@@ -498,36 +497,36 @@ static BOOL isDoubleTapDelete;
 		shiftByDelete = YES;
 	}
 	
-	%orig(touches, event);
+	%orig;
 }
 
-- (void)touchesCancelled:(id)arg1 withEvent:(id)arg2
-{
+-(void)touchesCancelled:(id)arg1 withEvent:(id)arg2 {
 	%orig(arg1, arg2);
 	
 	shiftByDelete = NO;
+	isLongPressed = NO;
 }
 
 /*==============touchesEnded================*/
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	isDeleteKey = NO;
+	
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
-	if ([key isEqualToString:@"delete"] && !isDoubleTapDelete){
+	if ([key isEqualToString:@"delete"]&& !isLongPressed) {
 		UIKeyboardImpl *kb = [UIKeyboardImpl activeInstance];
 		[kb handleDelete];
-		shiftByDelete = NO;
 	}
-	else {
-		%orig(touches, event);
-		shiftByDelete = NO;
-	}
+	
+	shiftByDelete = NO;
+	isLongPressed = NO;
+	
+	%orig;
 }
 
-- (BOOL)isShiftKeyBeingHeld
-{
-	if (shiftByDelete) {
+-(BOOL)isShiftKeyBeingHeld {
+	if(shiftByDelete) {
 		return YES;
 	}
 	
@@ -535,3 +534,19 @@ static BOOL isDoubleTapDelete;
 }
 %end
 
+/*==============UIKeyboardImpl================*/
+%hook UIKeyboardImpl
+-(BOOL)isLongPress {
+	isLongPressed = %orig;
+	return isLongPressed;
+}
+
+-(void)handleDelete {
+	if (!isLongPressed && isDeleteKey) {
+		
+	}
+	else {
+		%orig;
+	}
+}
+%end
