@@ -52,16 +52,46 @@
 -(BOOL)hasSelection;
 @end
 
+@interface UIKBShape : NSObject
+@end
+
+
+@interface UIKBKey : UIKBShape
+@property(copy) NSString * name;
+@property(copy) NSString * representedString;
+@property(copy) NSString * displayString;
+@property(copy) NSString * displayType;
+@property(copy) NSString * interactionType;
+@property(copy) NSString * variantType;
+//@property(copy) UIKBAttributeList * attributes;
+@property(copy) NSString * overrideDisplayString;
+@property(copy) NSString * clientVariantRepresentedString;
+@property(copy) NSString * clientVariantActionName;
+@property BOOL visible;
+@property BOOL hidden;
+@property BOOL disabled;
+@property BOOL isGhost;
+@property int splitMode;
+@end
+
+
+@interface UIKeyboardLayout : UIView
+-(UIKBKey*)keyHitTest:(CGPoint)point;
+@end
 
 @interface UIKeyboardImpl : UIView
-+(id)sharedInstance;
++(UIKeyboardImpl*)sharedInstance;
++(UIKeyboardImpl*)activeInstance;
 @property (readonly, assign, nonatomic) UIResponder <UITextInputPrivate> *privateInputDelegate;
 @property (readonly, assign, nonatomic) UIResponder <UITextInput> *inputDelegate;
 -(BOOL)isLongPress;
 -(id)_layout;
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
+-(void)handleDelete;
 @end
+
+
 
 
 #pragma mark - Helper functions
@@ -424,3 +454,84 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
     return [super canPreventGestureRecognizer:gestureRecognizer];
 }
 @end
+
+
+
+//
+// Code from : @iamharicc
+//
+// iAmharic <iamharic@gmail.com>
+//
+
+static BOOL shiftByDelete;
+static BOOL isDoubleTapDelete;
+
+%hook UIKeyboardLayoutStar
+/*==============touchesBegan================*/
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	UITouch *touch = [touches anyObject];
+	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
+	
+	if ([[touches anyObject] tapCount] == 2 && [key isEqualToString:@"delete"]) {
+		isDoubleTapDelete = YES;
+	}
+	else {
+		isDoubleTapDelete = NO;
+	}
+	
+	if (![key isEqualToString:@"delete"] || isDoubleTapDelete) {
+		%orig(touches, event);
+	}
+	else{
+		
+	}
+}
+
+/*==============touchesMoved================*/
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	UITouch *touch = [touches anyObject];
+	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
+	
+	if ([key isEqualToString:@"delete"]) {
+		shiftByDelete = YES;
+	}
+	
+	%orig(touches, event);
+}
+
+- (void)touchesCancelled:(id)arg1 withEvent:(id)arg2
+{
+	%orig(arg1, arg2);
+	
+	shiftByDelete = NO;
+}
+
+/*==============touchesEnded================*/
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	UITouch *touch = [touches anyObject];
+	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
+	
+	if ([key isEqualToString:@"delete"] && !isDoubleTapDelete){
+		UIKeyboardImpl *kb = [UIKeyboardImpl activeInstance];
+		[kb handleDelete];
+		shiftByDelete = NO;
+	}
+	else {
+		%orig(touches, event);
+		shiftByDelete = NO;
+	}
+}
+
+- (BOOL)isShiftKeyBeingHeld
+{
+	if (shiftByDelete) {
+		return YES;
+	}
+	
+	return %orig;
+}
+%end
+
