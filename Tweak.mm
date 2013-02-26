@@ -79,6 +79,10 @@
 -(UIKBKey*)keyHitTest:(CGPoint)point;
 @end
 
+@interface UIKeyboardLayoutStar : UIKeyboardLayout
+-(BOOL)_disableSwipes;
+@end
+
 @interface UIKeyboardImpl : UIView
 +(UIKeyboardImpl*)sharedInstance;
 +(UIKeyboardImpl*)activeInstance;
@@ -89,6 +93,7 @@
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
 -(void)handleDelete;
+-(void)handleDeleteWithNonZeroInputCount;
 -(BOOL)handwritingPlane;
 @end
 
@@ -146,6 +151,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
     static BOOL handWriting = NO;
     static BOOL haveCheckedHand = NO;
     static BOOL isFirstShiftDown = NO;
+	static BOOL isMoreKey = NO;
     static int touchesWhenShiting = 0;
 
     int touchesCount = [gesture numberOfTouches];
@@ -158,12 +164,18 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
             longPress = nLongTouch;
         }
     }
-
+	
+	// Get current layout
     id currentLayout = nil;
     if ([keyboardImpl respondsToSelector:@selector(_layout)]) {
         currentLayout = [keyboardImpl _layout];
     }
-
+	
+	if ([currentLayout respondsToSelector:@selector(_disableSwipes)] && !isMoreKey) {
+		isMoreKey = [currentLayout _disableSwipes];
+	}
+	
+	// Hand writing recognition
     if ([currentLayout respondsToSelector:@selector(handwritingPlane)] && !haveCheckedHand) {
         handWriting = [currentLayout handwritingPlane];
 	}
@@ -237,6 +249,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         }
 
         shiftHeldDown = NO;
+		isMoreKey = NO;
         longPress = NO;
         hasStarted = NO;
         handWriting = NO;
@@ -246,7 +259,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         touchesWhenShiting = 0;
         gesture.cancelsTouchesInView = NO;
     }
-    else if (longPress || handWriting || !privateInputDelegate) {
+    else if (longPress || handWriting || !privateInputDelegate || isMoreKey) {
         return;
     }
     else if (gesture.state == UIGestureRecognizerStateBegan) {
@@ -477,9 +490,10 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 //
 
 
-static BOOL shiftByDelete;
-static BOOL isLongPressed;
-static BOOL isDeleteKey;
+static BOOL shiftByDelete = NO;
+static BOOL isLongPressed = NO;
+static BOOL isDeleteKey = NO;
+static BOOL isMoreKey = NO;
 
 
 %hook UIKeyboardLayoutStar
@@ -488,12 +502,22 @@ static BOOL isDeleteKey;
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
+	// Delete key
 	if ([key isEqualToString:@"delete"]) {
 		isDeleteKey = YES;
 	}
 	else {
 		isDeleteKey = NO;
 	}
+	
+	// More key
+	if ([key isEqualToString:@"more"]) {
+		isMoreKey = YES;
+	}
+	else {
+		isMoreKey = NO;
+	}
+	
 	
 	%orig;
 }
@@ -503,9 +527,19 @@ static BOOL isDeleteKey;
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
+	// Delete key
 	if ([key isEqualToString:@"delete"]) {
 		shiftByDelete = YES;
 	}
+	
+	// More key
+	if ([key isEqualToString:@"more"]) {
+		isMoreKey = YES;
+	}
+	else {
+		isMoreKey = NO;
+	}
+	
 	
 	%orig;
 }
@@ -515,6 +549,7 @@ static BOOL isDeleteKey;
 	
 	shiftByDelete = NO;
 	isLongPressed = NO;
+	isMoreKey = NO;
 }
 
 /*==============touchesEnded================*/
@@ -524,25 +559,39 @@ static BOOL isDeleteKey;
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
-	if ([key isEqualToString:@"delete"]&& !isLongPressed) {
+	// Delete key
+	if ([key isEqualToString:@"delete"] && !isLongPressed) {
 		UIKeyboardImpl *kb = [UIKeyboardImpl activeInstance];
-		[kb handleDelete];
+		if ([kb respondsToSelector:@selector(handleDeleteWithNonZeroInputCount)]) {
+			[kb handleDeleteWithNonZeroInputCount];
+		}
+		else if ([kb respondsToSelector:@selector(handleDelete)]) {
+			[kb handleDelete];
+		}
 	}
+	
 	
 	shiftByDelete = NO;
 	isLongPressed = NO;
+	isMoreKey = NO;
 	
 	%orig;
 }
 
 -(BOOL)isShiftKeyBeingHeld {
-	if(shiftByDelete) {
+	if (shiftByDelete) {
 		return YES;
 	}
 	
 	return %orig;
 }
+
+%new
+-(BOOL)_disableSwipes{
+	return isMoreKey;
+}
 %end
+
 
 /*==============UIKeyboardImpl================*/
 %hook UIKeyboardImpl
