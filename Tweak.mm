@@ -150,7 +150,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
     int touchesCount = [gesture numberOfTouches];
 
-    UIKeyboardImpl *keyboardImpl = self;//[%c(UIKeyboardImpl) sharedInstance];
+    UIKeyboardImpl *keyboardImpl = self; //[%c(UIKeyboardImpl) sharedInstance];
 
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         BOOL nLongTouch = [keyboardImpl isLongPress];
@@ -164,8 +164,29 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         currentLayout = [keyboardImpl _layout];
     }
 
-    if ([currentLayout respondsToSelector:@selector(handwritingPlane)])
+    if ([currentLayout respondsToSelector:@selector(handwritingPlane)] && !haveCheckedHand) {
         handWriting = [currentLayout handwritingPlane];
+	}
+	else if ([currentLayout respondsToSelector:@selector(subviews)] && !handWriting && !haveCheckedHand) {
+        NSArray *subviews = [((UIView*)currentLayout) subviews];
+        for (UIView *subview in subviews) {
+			
+            if ([subview respondsToSelector:@selector(subviews)]) {
+                NSArray *arrayToCheck = [subview subviews];
+				
+                for (id view in arrayToCheck) {
+                    NSString *classString = [NSStringFromClass([view class]) lowercaseString];
+                    NSString *substring = [@"Handwriting" lowercaseString];
+					
+                    if ([classString rangeOfString:substring].location != NSNotFound) {
+                        handWriting = YES;
+                        break;
+                    }
+                }
+            }
+        }
+        haveCheckedHand = YES;
+    }
 
     haveCheckedHand = YES;
 
