@@ -263,7 +263,10 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 		CGPoint delta = CGPointMake(position.x - previousPosition.x, position.y - previousPosition.y);
 
         // Should we even run?
-        CGFloat deadZone = 10;
+        CGFloat deadZone = 18;
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+			deadZone = 30;
+		}
         if (!hasStarted && delta.x < deadZone && delta.x > (-deadZone)) {
             return;
         }
@@ -416,6 +419,8 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         CGPoint oldPrevious = previousPosition;
         // Should I change X?
         if (positiveX > xMinimum) { //|| positiveY > yMinimum) {
+			//CGFloat xDiff = ((delta.x < 0) ? (delta.x + xMinimum) : (delta.x - xMinimum));
+			//CGPoint accountForLeftOver = CGPointMake(position.x - xDiff, position.y);
             previousPosition = position;
         }
 
