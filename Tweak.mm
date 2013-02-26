@@ -163,27 +163,10 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         currentLayout = [keyboardImpl _layout];
     }
 
-    // Chinese handwriting check - (hacky)
-    if ([currentLayout respondsToSelector:@selector(subviews)] && !handWriting && !haveCheckedHand) {
-        NSArray *subviews = [((UIView*)currentLayout) subviews];
-        for (UIView *subview in subviews) {
+    if ([currentLayout respondsToSelector:@selector(handwritingPlane)])
+        handWriting = [currentLayout handwritingPlane];
 
-            if ([subview respondsToSelector:@selector(subviews)]) {
-                NSArray *arrayToCheck = [subview subviews];
-
-                for (id view in arrayToCheck) {
-                    NSString *classString = [NSStringFromClass([view class]) lowercaseString];
-                    NSString *substring = [@"Handwriting" lowercaseString];
-
-                    if ([classString rangeOfString:substring].location != NSNotFound) {
-                        handWriting = YES;
-                        break;
-                    }
-                }
-            }
-        }
-        haveCheckedHand = YES;
-    }
+    haveCheckedHand = YES;
 
 
     if ([keyboardImpl respondsToSelector:@selector(callLayoutIsShiftKeyBeingHeld)] && !shiftHeldDown) {
