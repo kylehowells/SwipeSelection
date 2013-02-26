@@ -89,6 +89,7 @@
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
 -(void)handleDelete;
+-(BOOL)handwritingPlane;
 @end
 
 
