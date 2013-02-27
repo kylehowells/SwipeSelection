@@ -248,12 +248,12 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
             }
         }
 
-        shiftHeldDown = NO;
+		shiftHeldDown = NO;
 		isMoreKey = NO;
-        longPress = NO;
-        hasStarted = NO;
-        handWriting = NO;
-        haveCheckedHand = NO;
+		longPress = NO;
+		hasStarted = NO;
+		handWriting = NO;
+		haveCheckedHand = NO;
 
         touchesCount = 0;
         touchesWhenShiting = 0;
@@ -285,9 +285,11 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 			deadZone = 30;
 		}
+		// If hasn't started, and it's either moved to little or the user swiped up (accents) kill it.
         if (!hasStarted && delta.x < deadZone && delta.x > (-deadZone)) {
-            return;
-        }
+			return;
+		}
+		
         // We are running so shut other things off/down
         gesture.cancelsTouchesInView = YES;
         hasStarted = YES;
@@ -307,7 +309,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
         
         // Only do these new big 'jumps' if we've moved far enough
-        CGFloat xMinimum = 12;
+        CGFloat xMinimum = 10;
 //        CGFloat yMinimum = 1;
 
         CGFloat neededTouches = 2;
@@ -464,19 +466,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 }
 
 - (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
-    UIKeyboardImpl *keyboardImpl = [%c(UIKeyboardImpl) sharedInstance];
-    BOOL longPress = NO;
-
-    if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
-        longPress = [keyboardImpl isLongPress];
-    }
-
-    // Seperate from the if statement in case of change in later iOS version I can add a second check above.
-    if (longPress) {
-        return NO;
-    }
-
-    return [super canPreventGestureRecognizer:gestureRecognizer];
+    return NO;
 }
 @end
 
