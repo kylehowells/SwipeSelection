@@ -81,6 +81,7 @@
 
 @interface UIKeyboardLayoutStar : UIKeyboardLayout
 -(BOOL)_disableSwipes;
+-(void)deleteAction;
 @end
 
 @interface UIKeyboardImpl : UIView
@@ -95,6 +96,7 @@
 -(void)handleDelete;
 -(void)handleDeleteAsRepeat:(BOOL)repeat;
 -(void)handleDeleteWithNonZeroInputCount;
+-(void)stopAutoDelete;
 -(BOOL)handwritingPlane;
 @end
 
@@ -555,14 +557,14 @@ static BOOL isMoreKey = NO;
 	// Delete key
 	if ([key isEqualToString:@"delete"] && !isLongPressed) {
 		UIKeyboardImpl *kb = [UIKeyboardImpl activeInstance];
-		if ([kb respondsToSelector:@selector(handleDeleteAsRepeat:)]) {
+		if ([kb respondsToSelector:@selector(handleDelete)]) {
+			[kb handleDelete];
+		}
+		else if ([kb respondsToSelector:@selector(handleDeleteAsRepeat:)]) {
 			[kb handleDeleteAsRepeat:NO];
 		}
 		else if ([kb respondsToSelector:@selector(handleDeleteWithNonZeroInputCount)]) {
 			[kb handleDeleteWithNonZeroInputCount];
-		}
-		else if ([kb respondsToSelector:@selector(handleDelete)]) {
-			[kb handleDelete];
 		}
 	}
 	
