@@ -93,6 +93,7 @@
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
 -(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
 -(void)handleDelete;
+-(void)handleDeleteAsRepeat:(BOOL)repeat;
 -(void)handleDeleteWithNonZeroInputCount;
 -(BOOL)handwritingPlane;
 @end
@@ -544,6 +545,8 @@ static BOOL isMoreKey = NO;
 
 /*==============touchesEnded================*/
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	%orig;
+	
 	isDeleteKey = NO;
 	
 	UITouch *touch = [touches anyObject];
@@ -552,7 +555,10 @@ static BOOL isMoreKey = NO;
 	// Delete key
 	if ([key isEqualToString:@"delete"] && !isLongPressed) {
 		UIKeyboardImpl *kb = [UIKeyboardImpl activeInstance];
-		if ([kb respondsToSelector:@selector(handleDeleteWithNonZeroInputCount)]) {
+		if ([kb respondsToSelector:@selector(handleDeleteAsRepeat:)]) {
+			[kb handleDeleteAsRepeat:NO];
+		}
+		else if ([kb respondsToSelector:@selector(handleDeleteWithNonZeroInputCount)]) {
 			[kb handleDeleteWithNonZeroInputCount];
 		}
 		else if ([kb respondsToSelector:@selector(handleDelete)]) {
@@ -564,8 +570,6 @@ static BOOL isMoreKey = NO;
 	shiftByDelete = NO;
 	isLongPressed = NO;
 	isMoreKey = NO;
-	
-	%orig;
 }
 
 -(BOOL)isShiftKeyBeingHeld {
