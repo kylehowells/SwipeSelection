@@ -50,11 +50,14 @@
 -(id)textColorForCaretSelection;
 -(id)fontForCaretSelection;
 -(BOOL)hasSelection;
+
+// ?
+-(CGRect)caretRect;
+-(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
 @end
 
 @interface UIKBShape : NSObject
 @end
-
 
 @interface UIKBKey : UIKBShape
 @property(copy) NSString * name;
@@ -73,7 +76,6 @@
 @property BOOL isGhost;
 @property int splitMode;
 @end
-
 
 @interface UIKeyboardLayout : UIView
 -(UIKBKey*)keyHitTest:(CGPoint)point;
@@ -98,6 +100,26 @@
 -(void)handleDeleteWithNonZeroInputCount;
 -(void)stopAutoDelete;
 -(BOOL)handwritingPlane;
+@end
+
+@interface UIFieldEditor : NSObject
++(UIFieldEditor*)sharedFieldEditor;
+-(void)revealSelection;
+@end
+
+@interface UIWebDocumentView : UIView
+-(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
+-(void)scrollSelectionToVisible:(BOOL)visible;
+@end
+
+@interface UIView(Private_text) <UITextInput>
+-(NSRange)selectedRange;
+-(NSRange)selectionRange;
+-(void)setSelectedRange:(NSRange)range;
+-(void)setSelectionRange:(NSRange)range;
+-(void)scrollSelectionToVisible:(BOOL)arg1;
+-(CGRect)rectForSelection:(NSRange)range;
+-(CGRect)textRectForBounds:(CGRect)rect;
 @end
 
 
@@ -451,6 +473,21 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
         if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y)) {
             [privateInputDelegate setSelectedTextRange:textRange];
+			
+			UIFieldEditor *fieldEditor = [objc_getClass("UIFieldEditor") sharedFieldEditor];
+			if (fieldEditor && [fieldEditor respondsToSelector:@selector(revealSelection)]) {
+				[fieldEditor revealSelection];
+			}
+			
+			if ([privateInputDelegate respondsToSelector:@selector(_scrollRectToVisible:animated:)]) {
+				if ([privateInputDelegate respondsToSelector:@selector(caretRect)]) {
+					CGRect caretRect = [privateInputDelegate caretRect];
+					[privateInputDelegate _scrollRectToVisible:caretRect animated:NO];
+				}
+			}
+			else if ([privateInputDelegate respondsToSelector:@selector(scrollSelectionToVisible:)]) {
+				[(UIView*)privateInputDelegate scrollSelectionToVisible:YES];
+			}
         }
 	}
 }
