@@ -122,6 +122,14 @@
 -(CGRect)textRectForBounds:(CGRect)rect;
 @end
 
+@interface UIKeyboardTaskQueue
+-(void)finishExecution;
+@end
+
+@interface UIKeyboardTaskExecutionContext
+@property(readonly) UIKeyboardTaskQueue * executionQueue;
+@end
+
 
 
 
@@ -637,19 +645,14 @@ static BOOL updateShift = YES;
 	}
 }
 
--(void)longPressAction {
-	isLongPressed = YES;
-	%orig;
-}
-
 -(BOOL)isLongPress {
 	isLongPressed = %orig;
 	return isLongPressed;
 }
 
--(void)deleteBackwardAndNotify:(BOOL)arg1 {
-	if (!isLongPressed && isDeleteKey) {
-		
+-(void)handleDeleteAsRepeat:(BOOL)arg1 executionContext:(UIKeyboardTaskExecutionContext *)arg2 {
+	if (!arg1 && isDeleteKey) {
+		[[arg2 executionQueue] finishExecution];
 	}
 	else {
 		%orig;
