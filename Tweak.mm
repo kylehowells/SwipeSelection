@@ -524,17 +524,20 @@ static BOOL shiftByDelete = NO;
 static BOOL isLongPressed = NO;
 static BOOL isDeleteKey = NO;
 static BOOL isMoreKey = NO;
+static BOOL updateShift = YES;
 
 
 %hook UIKeyboardLayoutStar
 /*==============touchesBegan================*/
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	updateShift = YES;
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
 	// Delete key
 	if ([key isEqualToString:@"delete"]) {
 		isDeleteKey = YES;
+		updateShift = NO;
 	}
 	else {
 		isDeleteKey = NO;
@@ -628,6 +631,12 @@ static BOOL isMoreKey = NO;
 
 /*==============UIKeyboardImpl================*/
 %hook UIKeyboardImpl
+-(void)setShift:(BOOL)arg1 autoshift:(BOOL)arg2 {
+	if (updateShift || !arg1) {
+		%orig;
+	}
+}
+
 -(void)longPressAction {
 	isLongPressed = YES;
 	%orig;
