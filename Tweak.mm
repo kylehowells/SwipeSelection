@@ -122,6 +122,14 @@
 -(CGRect)textRectForBounds:(CGRect)rect;
 @end
 
+@interface UIKeyboardTaskQueue
+-(void)finishExecution;
+@end
+
+@interface UIKeyboardTaskExecutionContext
+@property(readonly) UIKeyboardTaskQueue * executionQueue;
+@end
+
 
 
 
@@ -524,17 +532,20 @@ static BOOL shiftByDelete = NO;
 static BOOL isLongPressed = NO;
 static BOOL isDeleteKey = NO;
 static BOOL isMoreKey = NO;
+static BOOL updateShift = YES;
 
 
 %hook UIKeyboardLayoutStar
 /*==============touchesBegan================*/
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	updateShift = YES;
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
 	// Delete key
 	if ([key isEqualToString:@"delete"]) {
 		isDeleteKey = YES;
+		updateShift = NO;
 	}
 	else {
 		isDeleteKey = NO;
@@ -628,14 +639,20 @@ static BOOL isMoreKey = NO;
 
 /*==============UIKeyboardImpl================*/
 %hook UIKeyboardImpl
+-(void)setShift:(BOOL)arg1 autoshift:(BOOL)arg2 {
+	if (updateShift || !arg1) {
+		%orig;
+	}
+}
+
 -(BOOL)isLongPress {
 	isLongPressed = %orig;
 	return isLongPressed;
 }
 
--(void)handleDelete {
-	if (!isLongPressed && isDeleteKey) {
-		
+-(void)handleDeleteAsRepeat:(BOOL)arg1 executionContext:(UIKeyboardTaskExecutionContext *)arg2 {
+	if (!arg1 && isDeleteKey) {
+		[[arg2 executionQueue] finishExecution];
 	}
 	else {
 		%orig;
