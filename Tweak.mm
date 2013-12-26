@@ -628,12 +628,17 @@ static BOOL isMoreKey = NO;
 
 /*==============UIKeyboardImpl================*/
 %hook UIKeyboardImpl
+-(void)longPressAction {
+	isLongPressed = YES;
+	%orig;
+}
+
 -(BOOL)isLongPress {
 	isLongPressed = %orig;
 	return isLongPressed;
 }
 
--(void)handleDelete {
+-(void)deleteBackwardAndNotify:(BOOL)arg1 {
 	if (!isLongPressed && isDeleteKey) {
 		
 	}
