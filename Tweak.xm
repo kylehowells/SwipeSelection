@@ -402,12 +402,12 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         }
 
 
-        id <UITextInputTokenizer> tokenizer = nil;
+        id <UITextInput,UITextInputTokenizer> tokenizer = nil;
         if ([privateInputDelegate respondsToSelector:@selector(positionFromPosition:toBoundary:inDirection:)]) {
             tokenizer = privateInputDelegate;
         }
         else if ([privateInputDelegate respondsToSelector:@selector(tokenizer)]) {
-            tokenizer = privateInputDelegate.tokenizer;
+            tokenizer = (id)privateInputDelegate.tokenizer;
         }
 
         if (tokenizer) {
