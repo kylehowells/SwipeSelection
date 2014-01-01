@@ -1,4 +1,4 @@
-ARCHS=armv7
+ARCHS = armv7 arm64
 
 include /opt/theos/makefiles/common.mk
 
