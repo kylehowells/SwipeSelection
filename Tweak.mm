@@ -28,6 +28,45 @@
 
 
 #pragma mark - Headers
+
+/// iOS 7 Task Execution
+@class UIKeyboardTaskExecutionContext;
+
+@interface UIKeyboardTaskQueue : NSObject
+@property(retain, nonatomic) UIKeyboardTaskExecutionContext *executionContext;
+
+-(BOOL)isMainThreadExecutingTask;
+-(void)performTask:(id)arg1;
+-(void)waitUntilAllTasksAreFinished;
+-(void)addDeferredTask:(id)arg1;
+-(void)addTask:(id)arg1;
+-(void)promoteDeferredTaskIfIdle;
+-(void)performDeferredTaskIfIdle;
+-(void)performTaskOnMainThread:(id)arg1 waitUntilDone:(void)arg2;
+-(void)finishExecution;
+-(void)continueExecutionOnMainThread;
+-(void)unlock;
+-(BOOL)tryLockWhenReadyForMainThread;
+-(void)lockWhenReadyForMainThread;
+-(void)lock;
+@end
+
+@interface UIKeyboardTaskExecutionContext : NSObject
+@property(readonly, nonatomic) UIKeyboardTaskQueue *executionQueue;
+
+-(void)transferExecutionToMainThreadWithTask:(id)arg1;
+-(void)returnExecutionToParent;
+-(id)childWithContinuation:(id)arg1;
+-(id)initWithParentContext:(id)arg1 continuation:(id)arg2;
+-(id)initWithExecutionQueue:(id)arg1;
+@end
+
+
+
+
+
+
+
 @protocol UITextInputPrivate <UITextInput, UITextInputTokenizer> //, UITextInputTraits_Private, UITextSelectingContainer>
 -(BOOL)shouldEnableAutoShift;
 -(NSRange)selectionRange;
@@ -56,6 +95,9 @@
 -(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
 @end
 
+
+
+/** iOS 5-6 **/
 @interface UIKBShape : NSObject
 @end
 
@@ -77,14 +119,55 @@
 @property int splitMode;
 @end
 
+
+/** iOS 7 **/
+@interface UIKBTree : NSObject <NSCopying>
++(id)keyboard;
++(id)key;
++(id)shapesForControlKeyShapes:(id)arg1 options:(int)arg2;
++(id)mergeStringForKeyName:(id)arg1;
++(BOOL)shouldSkipCacheString:(id)arg1;
++(id)stringForType:(int)arg1;
++(id)treeOfType:(int)arg1;
++(id)uniqueName;
+
+@property(retain, nonatomic) NSString *layoutTag;
+@property(retain, nonatomic) NSMutableDictionary *cache;
+@property(retain, nonatomic) NSMutableArray *subtrees;
+@property(retain, nonatomic) NSMutableDictionary *properties;
+@property(retain, nonatomic) NSString *name;
+@property(nonatomic) int type;
+
+- (BOOL)isLeafType;
+- (BOOL)usesKeyCharging;
+- (BOOL)usesAdaptiveKeys;
+- (BOOL)modifiesKeyplane;
+- (BOOL)avoidsLanguageIndicator;
+- (BOOL)isAlphabeticPlane;
+- (BOOL)noLanguageIndicator;
+- (BOOL)isLetters;
+- (BOOL)subtreesAreOrdered;
+
+@end
+
+
 @interface UIKeyboardLayout : UIView
 -(UIKBKey*)keyHitTest:(CGPoint)point;
 @end
 
 @interface UIKeyboardLayoutStar : UIKeyboardLayout
--(BOOL)_disableSwipes;
+// iOS 7
+-(id)keyHitTest:(CGPoint)arg1;
+-(id)keyHitTestWithoutCharging:(CGPoint)arg1;
+-(id)keyHitTestClosestToPoint:(CGPoint)arg1;
+-(id)keyHitTestContainingPoint:(CGPoint)arg1;
+
+-(BOOL)SS_shouldSelect;
+-(BOOL)SS_disableSwipes;
+-(BOOL)isShiftKeyBeingHeld;
 -(void)deleteAction;
 @end
+
 
 @interface UIKeyboardImpl : UIView
 +(UIKeyboardImpl*)sharedInstance;
@@ -102,15 +185,18 @@
 -(BOOL)handwritingPlane;
 @end
 
+
 @interface UIFieldEditor : NSObject
 +(UIFieldEditor*)sharedFieldEditor;
 -(void)revealSelection;
 @end
 
+
 @interface UIWebDocumentView : UIView
 -(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
 -(void)scrollSelectionToVisible:(BOOL)visible;
 @end
+
 
 @interface UIView(Private_text) <UITextInput>
 -(NSRange)selectedRange;
@@ -121,6 +207,16 @@
 -(CGRect)rectForSelection:(NSRange)range;
 -(CGRect)textRectForBounds:(CGRect)rect;
 @end
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -141,9 +237,24 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 }
 
 
+
+float KH_PositiveFloat(float x){
+	if (x<0) {
+		x = -x;
+    }
+	return x;
+}
+
+
+
+
+
+
 #pragma mark - GestureRecognizer
 @interface KHPanGestureRecognizer : UIPanGestureRecognizer
 @end
+
+
 
 
 #pragma mark - Hooks
@@ -175,10 +286,11 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
     static BOOL longPress = NO;
     static BOOL handWriting = NO;
     static BOOL haveCheckedHand = NO;
-    static BOOL isFirstShiftDown = NO;
+    static BOOL isFirstShiftDown = NO; // = first run of the code shift is held, then pick the pivot point
 	static BOOL isMoreKey = NO;
     static int touchesWhenShiting = 0;
-
+	static BOOL cancelled = NO;
+	
     int touchesCount = [gesture numberOfTouches];
 
     UIKeyboardImpl *keyboardImpl = self; //[%c(UIKeyboardImpl) sharedInstance];
@@ -196,8 +308,9 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         currentLayout = [keyboardImpl _layout];
     }
 	
-	if ([currentLayout respondsToSelector:@selector(_disableSwipes)] && !isMoreKey) {
-		isMoreKey = [currentLayout _disableSwipes];
+	// Check more key, unless it's already ues
+	if ([currentLayout respondsToSelector:@selector(SS_disableSwipes)] && !isMoreKey) {
+		isMoreKey = [currentLayout SS_disableSwipes];
 	}
 	
 	// Hand writing recognition
@@ -224,30 +337,35 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         }
         haveCheckedHand = YES;
     }
-
     haveCheckedHand = YES;
-
-
-    if ([keyboardImpl respondsToSelector:@selector(callLayoutIsShiftKeyBeingHeld)] && !shiftHeldDown) {
-        shiftHeldDown = [keyboardImpl callLayoutIsShiftKeyBeingHeld];
+	
+	
+	
+	// Check for shift key being pressed
+	if ([currentLayout respondsToSelector:@selector(SS_shouldSelect)] && !shiftHeldDown) {
+		shiftHeldDown = [currentLayout SS_shouldSelect];
         isFirstShiftDown = YES;
         touchesWhenShiting = touchesCount;
-    }
-
-    id <UITextInputPrivate, NSObject, NSCoding> privateInputDelegate = nil;
+	}
+	
+	
+	// Get the text input
+    id <UITextInputPrivate> privateInputDelegate = nil;
     if ([keyboardImpl respondsToSelector:@selector(privateInputDelegate)]) {
         privateInputDelegate = (id)keyboardImpl.privateInputDelegate;
     }
     if (!privateInputDelegate && [keyboardImpl respondsToSelector:@selector(inputDelegate)]) {
         privateInputDelegate = (id)keyboardImpl.inputDelegate;
     }
-
+	
+	
+	// Start Gesture stuff
     if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
         if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
             UITextRange *range = [privateInputDelegate selectedTextRange];
             if (range && !range.empty) {
                 CGRect screenBounds = [UIScreen mainScreen].bounds;
-                CGRect rect = CGRectMake(screenBounds.size.width * 0.5, screenBounds.size.height*0.5, 1, 1);
+                CGRect rect = CGRectMake(screenBounds.size.width * 0.5, screenBounds.size.height * 0.5, 1, 1);
 
                 if ([privateInputDelegate respondsToSelector:@selector(firstRectForRange:)]) {
                     rect = [privateInputDelegate firstRectForRange:range];
@@ -266,7 +384,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
                     }
                 }
                 
-
+				// Should fix this to actually get the onscreen rect
                 UIMenuController *menu = [UIMenuController sharedMenuController];
                 [menu setTargetRect:rect inView:view];
                 [menu setMenuVisible:YES animated:YES];
@@ -279,6 +397,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 		hasStarted = NO;
 		handWriting = NO;
 		haveCheckedHand = NO;
+		cancelled = NO;
 
         touchesCount = 0;
         touchesWhenShiting = 0;
@@ -310,8 +429,14 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 			deadZone = 30;
 		}
+		
 		// If hasn't started, and it's either moved to little or the user swiped up (accents) kill it.
-        if (!hasStarted && delta.x < deadZone && delta.x > (-deadZone)) {
+		if (hasStarted == NO && KH_PositiveFloat(delta.y) > deadZone) {
+			if (KH_PositiveFloat(delta.y) > KH_PositiveFloat(delta.x)) {
+				cancelled = YES;
+			}
+		}
+        if ((hasStarted == NO && delta.x < deadZone && delta.x > (-deadZone)) || cancelled) {
 			return;
 		}
 		
@@ -347,7 +472,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
         if (touchesCount >= neededTouches) {
             // make it skip words
             granularity = UITextGranularityWord;
-            xMinimum = 26;
+            xMinimum = 20;
         }
 
         // Should we move the cusour or extend the current range.
@@ -401,14 +526,16 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
             }
         }
 
-
-        id <UITextInputTokenizer> tokenizer = nil;
+		
+		// Try and get the tockenizer
+        id <UITextInputTokenizer, UITextInput> tokenizer = nil;
         if ([privateInputDelegate respondsToSelector:@selector(positionFromPosition:toBoundary:inDirection:)]) {
             tokenizer = privateInputDelegate;
         }
         else if ([privateInputDelegate respondsToSelector:@selector(tokenizer)]) {
-            tokenizer = privateInputDelegate.tokenizer;
+            tokenizer = (id <UITextInput, UITextInputTokenizer>)privateInputDelegate.tokenizer;
         }
+		
 
         if (tokenizer) {
             // Move X
@@ -513,6 +640,9 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 
 
 
+
+
+
 //
 // Code from : @iamharicc
 //
@@ -520,7 +650,7 @@ BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPo
 //
 
 
-static BOOL shiftByDelete = NO;
+static BOOL shiftByOtherKey = NO;
 static BOOL isLongPressed = NO;
 static BOOL isDeleteKey = NO;
 static BOOL isMoreKey = NO;
@@ -530,7 +660,11 @@ static BOOL isMoreKey = NO;
 /*==============touchesBegan================*/
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
-	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
+	
+	UIKBKey *keyObject = [self keyHitTest:[touch locationInView:touch.view]];
+	NSString *key = [[keyObject representedString] lowercaseString];
+	//NSLog(@"key=[%@]", key);
+	
 	
 	// Delete key
 	if ([key isEqualToString:@"delete"]) {
@@ -539,6 +673,7 @@ static BOOL isMoreKey = NO;
 	else {
 		isDeleteKey = NO;
 	}
+	
 	
 	// More key
 	if ([key isEqualToString:@"more"]) {
@@ -555,11 +690,15 @@ static BOOL isMoreKey = NO;
 /*==============touchesMoved================*/
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
 	UITouch *touch = [touches anyObject];
-	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
 	
-	// Delete key
-	if ([key isEqualToString:@"delete"]) {
-		shiftByDelete = YES;
+	UIKBKey *keyObject = [self keyHitTest:[touch locationInView:touch.view]];
+	NSString *key = [[keyObject representedString] lowercaseString];
+	
+	
+	// Delete key (or the arabic key which is where the shift key would be)
+	if ([key isEqualToString:@"delete"] ||
+		[key isEqualToString:@"ء"]) {
+		shiftByOtherKey = YES;
 	}
 	
 	// More key
@@ -577,7 +716,7 @@ static BOOL isMoreKey = NO;
 -(void)touchesCancelled:(id)arg1 withEvent:(id)arg2 {
 	%orig(arg1, arg2);
 	
-	shiftByDelete = NO;
+	shiftByOtherKey = NO;
 	isLongPressed = NO;
 	isMoreKey = NO;
 }
@@ -590,6 +729,7 @@ static BOOL isMoreKey = NO;
 	
 	UITouch *touch = [touches anyObject];
 	NSString *key = [[[self keyHitTest:[touch locationInView:touch.view]] representedString] lowercaseString];
+	
 	
 	// Delete key
 	if ([key isEqualToString:@"delete"] && !isLongPressed) {
@@ -606,33 +746,48 @@ static BOOL isMoreKey = NO;
 	}
 	
 	
-	shiftByDelete = NO;
+	shiftByOtherKey = NO;
 	isLongPressed = NO;
 	isMoreKey = NO;
 }
 
--(BOOL)isShiftKeyBeingHeld {
-	if (shiftByDelete) {
-		return YES;
-	}
-	
-	return %orig;
-}
+
+
+// Old approach, keep incase the next one breaks anything
+//-(BOOL)isShiftKeyBeingHeld {
+//	if (shiftByOtherKey) {
+//		return YES;
+//	}
+//	
+//	return %orig;
+//}
 
 %new
--(BOOL)_disableSwipes{
+-(BOOL)SS_shouldSelect{
+	return ([self isShiftKeyBeingHeld] || shiftByOtherKey);
+}
+
+
+%new
+-(BOOL)SS_disableSwipes{
 	return isMoreKey;
 }
 %end
 
 
+
+
+
 /*==============UIKeyboardImpl================*/
 %hook UIKeyboardImpl
+
+// Doesn't work to get long press on delete key but does for other keys.
 -(BOOL)isLongPress {
 	isLongPressed = %orig;
 	return isLongPressed;
 }
 
+// Legacy support (doesn't effect iOS 7 + so harmless leaving in & helps iOS 6)
 -(void)handleDelete {
 	if (!isLongPressed && isDeleteKey) {
 		
@@ -640,5 +795,17 @@ static BOOL isMoreKey = NO;
 	else {
 		%orig;
 	}
+}
+
+-(void)handleDeleteAsRepeat:(BOOL)repeat executionContext:(UIKeyboardTaskExecutionContext*)executionContext{
+	// Long press is simply meant to indicate if it's should repeat delete so repeat will do.
+	isLongPressed = repeat;
+	
+	if (!isLongPressed && isDeleteKey) {
+		[[executionContext executionQueue] finishExecution];
+		return;
+	}
+	
+	%orig;
 }
 %end
