@@ -830,21 +830,3 @@ static BOOL isMoreKey = NO;
 
 
 
-
-
-
-
-
-
-%hook TSDTextInputResponder
-
--(UITextPosition *)positionFromPosition:(UITextPosition *)position toBoundary:(long)granularity inDirection:(long)direction{
-	%log;
-	return %orig;
-}
-
-%end
-
-
-
-
