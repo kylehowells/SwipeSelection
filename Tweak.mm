@@ -222,7 +222,14 @@
 
 
 #pragma mark - Helper functions
-UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction);
+
+UITextPosition *KH_MovePositionDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextDirection direction){
+    if (tokenizer && startPosition) {
+        return [tokenizer positionFromPosition:startPosition inDirection:direction offset:1];
+    }
+    return nil;
+}
+
 UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction){
 
     if (tokenizer && startPosition) {
@@ -231,12 +238,10 @@ UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInpu
 
     return nil;
 }
-BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *position1, UITextPosition *position2);
+
 BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *position1, UITextPosition *position2){
     return ([tokenizer comparePosition:position1 toPosition:position2] == NSOrderedSame);
 }
-
-
 
 float KH_PositiveFloat(float x){
 	if (x<0) {
@@ -250,8 +255,10 @@ float KH_PositiveFloat(float x){
 
 
 
+
+
 #pragma mark - GestureRecognizer
-@interface KHPanGestureRecognizer : UIPanGestureRecognizer
+@interface SSPanGestureRecognizer : UIPanGestureRecognizer
 @end
 
 
@@ -264,7 +271,7 @@ float KH_PositiveFloat(float x){
     id orig = %orig;
 
     if (orig){
-        KHPanGestureRecognizer *pan = [[KHPanGestureRecognizer alloc] initWithTarget:self action:@selector(_KHKeyboardGestureDidPan:)];
+        SSPanGestureRecognizer *pan = [[SSPanGestureRecognizer alloc] initWithTarget:self action:@selector(SS_KeyboardGestureDidPan:)];
         pan.cancelsTouchesInView = NO;
         [self addGestureRecognizer:pan];
         [pan release];
@@ -274,8 +281,8 @@ float KH_PositiveFloat(float x){
 }
 
 %new
--(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture{
-
+-(void)SS_KeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture{
+	
     // Location info (may change)
     static UITextRange *startingtextRange = nil;
     static CGPoint previousPosition;
@@ -293,7 +300,7 @@ float KH_PositiveFloat(float x){
 	
     int touchesCount = [gesture numberOfTouches];
 
-    UIKeyboardImpl *keyboardImpl = self; //[%c(UIKeyboardImpl) sharedInstance];
+    UIKeyboardImpl *keyboardImpl = self;
 
     if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
         BOOL nLongTouch = [keyboardImpl isLongPress];
@@ -445,7 +452,7 @@ float KH_PositiveFloat(float x){
         hasStarted = YES;
 
         // Make x & y positive for comparision
-        CGFloat positiveX = ((delta.x >= 0) ? delta.x : (-delta.x));
+        CGFloat positiveX = KH_PositiveFloat(delta.x);
 //        CGFloat positiveY = ((delta.y >= 0) ? delta.y : (-delta.y));
 
         // Determine the direction it should be going in
@@ -536,14 +543,20 @@ float KH_PositiveFloat(float x){
             tokenizer = (id <UITextInput, UITextInputTokenizer>)privateInputDelegate.tokenizer;
         }
 		
-
         if (tokenizer) {
             // Move X
             if (positiveX >= 1) {
                 UITextPosition *_position_old = _position;
-
-                _position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, granularity, textDirection);
-                
+				
+				if (granularity == UITextGranularityCharacter &&
+					[tokenizer respondsToSelector:@selector(positionFromPosition:inDirection:offset:)]) {
+					_position = KH_MovePositionDirection(tokenizer, _position, textDirection);
+				}
+				else {
+					_position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, granularity, textDirection);
+				}
+				
+				
                 // If I tried to move it and got nothing back reset it to what I had.
                 if (!_position){ _position = _position_old; }
                 
@@ -560,7 +573,7 @@ float KH_PositiveFloat(float x){
 					_position = _position_old;
 				}
             }
-
+			
             // Move Y
 //            if (positiveY >= yMinimum) {
 //                UITextPosition *_position_old = _position;
@@ -623,7 +636,7 @@ float KH_PositiveFloat(float x){
 
 
 #pragma mark - GestureRecognizer implementation
-@implementation KHPanGestureRecognizer
+@implementation SSPanGestureRecognizer
 - (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer{
     if ([preventingGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
         return YES;
@@ -636,6 +649,9 @@ float KH_PositiveFloat(float x){
     return NO;
 }
 @end
+
+
+
 
 
 
@@ -809,3 +825,26 @@ static BOOL isMoreKey = NO;
 	%orig;
 }
 %end
+
+
+
+
+
+
+
+
+
+
+
+%hook TSDTextInputResponder
+
+-(UITextPosition *)positionFromPosition:(UITextPosition *)position toBoundary:(long)granularity inDirection:(long)direction{
+	%log;
+	return %orig;
+}
+
+%end
+
+
+
+
