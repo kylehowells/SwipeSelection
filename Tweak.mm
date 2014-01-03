@@ -282,7 +282,6 @@ float KH_PositiveFloat(float x){
 
 %new
 -(void)SS_KeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture{
-	
     // Location info (may change)
     static UITextRange *startingtextRange = nil;
     static CGPoint previousPosition;
@@ -365,6 +364,14 @@ float KH_PositiveFloat(float x){
         privateInputDelegate = (id)keyboardImpl.inputDelegate;
     }
 	
+	// Viber custom text view, which is super buggy with the tockenizer stuff.
+	if (privateInputDelegate != nil && [NSStringFromClass([privateInputDelegate class]) isEqualToString:@"VBEmoticonsContentTextView"]) {
+		privateInputDelegate = nil;
+		cancelled = YES; // Try disabling it
+	}
+	
+	
+	
 	
 	// Start Gesture stuff
     if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
@@ -410,7 +417,7 @@ float KH_PositiveFloat(float x){
         touchesWhenShiting = 0;
         gesture.cancelsTouchesInView = NO;
     }
-    else if (longPress || handWriting || !privateInputDelegate || isMoreKey) {
+    else if (longPress || handWriting || !privateInputDelegate || isMoreKey || cancelled) {
         return;
     }
     else if (gesture.state == UIGestureRecognizerStateBegan) {
@@ -549,7 +556,8 @@ float KH_PositiveFloat(float x){
                 UITextPosition *_position_old = _position;
 				
 				if (granularity == UITextGranularityCharacter &&
-					[tokenizer respondsToSelector:@selector(positionFromPosition:inDirection:offset:)]) {
+					[tokenizer respondsToSelector:@selector(positionFromPosition:inDirection:offset:)] &&
+					NO) {
 					_position = KH_MovePositionDirection(tokenizer, _position, textDirection);
 				}
 				else {
@@ -824,8 +832,10 @@ static BOOL isMoreKey = NO;
 	
 	%orig;
 }
-%end
 
+
+//- (BOOL)handleKeyCommand:(id)arg1 repeatOkay:(BOOL*)arg2{ %log; return %orig; }
+%end
 
 
 
