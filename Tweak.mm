@@ -25,6 +25,7 @@
 #import <UIKit/UIKit.h>
 #import <UIKit/UITextInput.h>
 #import <UIKit/UIGestureRecognizerSubclass.h>
+#import <objc/runtime.h>
 
 
 #pragma mark - Headers
@@ -254,12 +255,43 @@ float KH_PositiveFloat(float x){
 
 
 
-
+// AltKeyboard2 compatibility
+Class AKFlickGestureRecognizer(){
+	static Class AKFlickGestureRecognizer_Class = nil;
+	static BOOL checked = NO;
+	
+	if (!checked) {
+		AKFlickGestureRecognizer_Class = objc_getClass("AKFlickGestureRecognizer");
+	}
+	
+	return AKFlickGestureRecognizer_Class;
+}
 
 
 #pragma mark - GestureRecognizer
 @interface SSPanGestureRecognizer : UIPanGestureRecognizer
 @end
+
+#pragma mark - GestureRecognizer implementation
+@implementation SSPanGestureRecognizer
+-(BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer{
+	
+	if ([preventingGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] &&
+		([preventingGestureRecognizer isKindOfClass:AKFlickGestureRecognizer()] == NO))
+	{
+		return YES;
+	}
+	
+	return NO;
+}
+
+- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
+    return NO;
+}
+@end
+
+
+
 
 
 
@@ -641,22 +673,6 @@ float KH_PositiveFloat(float x){
 }
 
 %end
-
-
-#pragma mark - GestureRecognizer implementation
-@implementation SSPanGestureRecognizer
-- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer{
-    if ([preventingGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
-        return YES;
-    }
-
-    return NO;
-}
-
-- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
-    return NO;
-}
-@end
 
 
 
