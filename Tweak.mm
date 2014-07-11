@@ -154,6 +154,7 @@
 
 @interface UIKeyboardLayout : UIView
 -(UIKBKey*)keyHitTest:(CGPoint)point;
+-(NSString *)keyboardName;
 @end
 
 @interface UIKeyboardLayoutStar : UIKeyboardLayout
@@ -328,6 +329,7 @@ Class AKFlickGestureRecognizer(){
 	static BOOL isMoreKey = NO;
     static int touchesWhenShiting = 0;
 	static BOOL cancelled = NO;
+	static BOOL tenKeyboard = NO;
 	
     int touchesCount = [gesture numberOfTouches];
 
@@ -402,6 +404,15 @@ Class AKFlickGestureRecognizer(){
 		cancelled = YES; // Try disabling it
 	}
 	
+	// except 10Key keyboard
+	// >= iOS 4.3.3
+	UIKeyboardLayout *m_layout = MSHookIvar<UIKeyboardLayout *>(keyboardImpl, "m_layout");
+	NSString *keyboardName = [m_layout keyboardName];
+	if ([keyboardName rangeOfString:@"-Kana"].location != NSNotFound)
+		tenKeyboard = YES;
+	else if ([keyboardName rangeOfString:@"-Korean10Key"].location != NSNotFound)
+		tenKeyboard = YES;
+	
 	
 	
 	
@@ -436,6 +447,9 @@ Class AKFlickGestureRecognizer(){
                 [menu setMenuVisible:YES animated:YES];
             }
         }
+        // fix text deletion issue during Korean syllable composing
+        if ([privateInputDelegate respondsToSelector:@selector(endSelectionChange)])
+            [privateInputDelegate performSelector:@selector(endSelectionChange)];
 
 		shiftHeldDown = NO;
 		isMoreKey = NO;
@@ -444,12 +458,13 @@ Class AKFlickGestureRecognizer(){
 		handWriting = NO;
 		haveCheckedHand = NO;
 		cancelled = NO;
+		tenKeyboard = NO;
 
         touchesCount = 0;
         touchesWhenShiting = 0;
         gesture.cancelsTouchesInView = NO;
     }
-    else if (longPress || handWriting || !privateInputDelegate || isMoreKey || cancelled) {
+    else if (longPress || handWriting || !privateInputDelegate || isMoreKey || cancelled || tenKeyboard) {
         return;
     }
     else if (gesture.state == UIGestureRecognizerStateBegan) {
@@ -459,6 +474,9 @@ Class AKFlickGestureRecognizer(){
             [startingtextRange release], startingtextRange = nil;
             startingtextRange = [[privateInputDelegate selectedTextRange] retain];
         }
+        // fix text deletion issue during Korean syllable composing
+        if ([privateInputDelegate respondsToSelector:@selector(beginSelectionChange)])
+            [privateInputDelegate performSelector:@selector(beginSelectionChange)];
 	}
 	else if (gesture.state == UIGestureRecognizerStateChanged) {
         UITextRange *currentRange = startingtextRange;
