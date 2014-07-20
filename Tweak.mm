@@ -445,6 +445,7 @@ Class AKFlickGestureRecognizer(){
             NSInteger currEndPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:range.end];
             
             if (prevStartPosition == prevEndPosition 
+                    && !longPress
                     && (prevStartPosition != currStartPosition || currStartPosition != currEndPosition) 
                     && [privateInputDelegate respondsToSelector:@selector(beginSelectionChange)])
                 [privateInputDelegate performSelector:@selector(beginSelectionChange)];
