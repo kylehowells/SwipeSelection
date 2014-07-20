@@ -435,6 +435,24 @@ Class AKFlickGestureRecognizer(){
                 [menu setTargetRect:rect inView:view];
                 [menu setMenuVisible:YES animated:YES];
             }
+            
+            // fix text deletion issue during Korean syllable composing
+            // {{{
+            UITextPosition *beginning = privateInputDelegate.beginningOfDocument;
+            NSInteger prevStartPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:startingtextRange.start];
+            NSInteger prevEndPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:startingtextRange.end];
+            NSInteger currStartPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:range.start];
+            NSInteger currEndPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:range.end];
+            
+            if (prevStartPosition == prevEndPosition 
+                    && !longPress
+                    && (prevStartPosition != currStartPosition || currStartPosition != currEndPosition) 
+                    && [privateInputDelegate respondsToSelector:@selector(beginSelectionChange)])
+                [privateInputDelegate performSelector:@selector(beginSelectionChange)];
+            
+            if ([privateInputDelegate respondsToSelector:@selector(endSelectionChange)])
+                [privateInputDelegate performSelector:@selector(endSelectionChange)];
+            // }}}
         }
 
 		shiftHeldDown = NO;
@@ -458,6 +476,16 @@ Class AKFlickGestureRecognizer(){
         if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
             [startingtextRange release], startingtextRange = nil;
             startingtextRange = [[privateInputDelegate selectedTextRange] retain];
+            
+            // fix text deletion issue during Korean syllable composing
+            // {{{
+            UITextPosition *beginning = privateInputDelegate.beginningOfDocument;
+            NSInteger prevStartPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:startingtextRange.start];
+            NSInteger prevEndPosition = [privateInputDelegate offsetFromPosition:beginning toPosition:startingtextRange.end];
+            
+            if (prevStartPosition != prevEndPosition && [privateInputDelegate respondsToSelector:@selector(beginSelectionChange)])
+                [privateInputDelegate performSelector:@selector(beginSelectionChange)];
+            // }}}
         }
 	}
 	else if (gesture.state == UIGestureRecognizerStateChanged) {
@@ -636,7 +664,7 @@ Class AKFlickGestureRecognizer(){
         }
 
         // Get a new text range
-        UITextRange *textRange = startingtextRange = nil;
+        UITextRange *textRange = nil;
         if ([privateInputDelegate respondsToSelector:@selector(textRangeFromPosition:toPosition:)]) {
             textRange = [privateInputDelegate textRangeFromPosition:pivotPoint toPosition:_position];
         }
