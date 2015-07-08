@@ -758,7 +758,7 @@ static BOOL isMoreKey = NO;
 	
 	UIKBKey *keyObject = [self keyHitTest:[touch locationInView:touch.view]];
 	NSString *key = [[keyObject representedString] lowercaseString];
-	//NSLog(@"key=[%@]", key);
+//	NSLog(@"key=[%@]  -  keyObject=%@  -  flickDirection = %d", key, keyObject, [(UIKBTree*)keyObject flickDirection]);
 	
 	
 	// Delete key
@@ -905,9 +905,7 @@ static BOOL isMoreKey = NO;
 }
 
 
-//- (BOOL)handleKeyCommand:(id)arg1 repeatOkay:(BOOL*)arg2{ %log; return %orig; }
+//-(BOOL)handleKeyCommand:(id)arg1 repeatOkay:(BOOL*)arg2{ %log; return %orig; }
 %end
-
-
 
 
