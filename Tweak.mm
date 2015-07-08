@@ -90,10 +90,6 @@
 -(id)textColorForCaretSelection;
 -(id)fontForCaretSelection;
 -(BOOL)hasSelection;
-
-// ?
--(CGRect)caretRect;
--(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
 @end
 
 
@@ -178,7 +174,6 @@
 -(BOOL)isLongPress;
 -(id)_layout;
 -(BOOL)callLayoutIsShiftKeyBeingHeld;
--(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
 -(void)handleDelete;
 -(void)handleDeleteAsRepeat:(BOOL)repeat;
 -(void)handleDeleteWithNonZeroInputCount;
@@ -186,6 +181,10 @@
 -(BOOL)handwritingPlane;
 
 -(void)updateForChangedSelection;
+
+// SwipeSelection
+-(void)_KHKeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture;
+-(void)SS_revealSelection:(UIView*)inputView;
 @end
 
 
@@ -195,13 +194,21 @@
 @end
 
 
-@interface UIWebDocumentView : UIView
--(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
--(void)scrollSelectionToVisible:(BOOL)visible;
-@end
+//@interface UIWebDocumentView : UIView
+//-(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
+//-(void)scrollSelectionToVisible:(BOOL)visible;
+//@end
 
 
 @interface UIView(Private_text) <UITextInput>
+// UIWebDocumentView
+-(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
+-(void)scrollSelectionToVisible:(BOOL)visible;
+
+// UITextInputPrivate
+-(CGRect)caretRect;
+-(void)_scrollRectToVisible:(CGRect)visible animated:(BOOL)animated;
+
 -(NSRange)selectedRange;
 -(NSRange)selectionRange;
 -(void)setSelectedRange:(NSRange)range;
@@ -328,6 +335,7 @@ Class AKFlickGestureRecognizer(){
 	
 	// Webview fix
 	static CGFloat xOffset = 0;
+	static CGPoint realPreviousPosition;
 
     // Basic info
     static BOOL shiftHeldDown = NO;
@@ -475,6 +483,7 @@ Class AKFlickGestureRecognizer(){
 		xOffset = 0;
 		
         previousPosition = [gesture locationInView:self];
+		realPreviousPosition = previousPosition;
 
         if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
             [startingtextRange release], startingtextRange = nil;
@@ -670,50 +679,58 @@ Class AKFlickGestureRecognizer(){
             previousPosition = position;
         }
 
-        isFirstShiftDown = NO;
-
-        if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y))
-		{
-			//
-			// Handle Safari's broken UITextInput support
-			//
-			BOOL webView = [NSStringFromClass([inputDelegate class]) isEqualToString:@"WKContentView"];
-			if (webView) {
-				xOffset += (position.x - previousPoint.x);
+		isFirstShiftDown = NO;
+		
+		
+		
+		//
+		// Handle Safari's broken UITextInput support
+		//
+		BOOL webView = [NSStringFromClass([privateInputDelegate class]) isEqualToString:@"WKContentView"];
+		if (webView) {
+			xOffset += (position.x - realPreviousPosition.x);
+			
+			if (ABS(xOffset) >= xMinimum) {
+				BOOL positive = (xOffset > 0);
+				int offset = (ABS(xOffset) / xMinimum);
 				
-				if (ABS(xOffset) >= offsetPerMove) {
-					BOOL positive = (xOffset > 0);
-					int offset = (ABS(xOffset) / offsetPerMove);
-					
-					for (int i = 0; i < offset; i++) {
-						[(WKContentView*)inputDelegate moveByOffset:(positive ? 1 : -1)];
-					}
-					
-					xOffset += (positive ? -(offset * offsetPerMove) : (offset * offsetPerMove));
+				for (int i = 0; i < offset; i++) {
+					[(WKContentView*)privateInputDelegate moveByOffset:(positive ? 1 : -1)];
 				}
+				
+				xOffset += (positive ? -(offset * xMinimum) : (offset * xMinimum));
 			}
-			
-			
-			//
-			// Normal text input
-			//
+			[self SS_revealSelection:(UIView*)privateInputDelegate];
+		}
+		
+		
+		//
+		// Normal text input
+		//
+        if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y)) {
             [privateInputDelegate setSelectedTextRange:textRange];
-			
-			UIFieldEditor *fieldEditor = [objc_getClass("UIFieldEditor") sharedFieldEditor];
-			if (fieldEditor && [fieldEditor respondsToSelector:@selector(revealSelection)]) {
-				[fieldEditor revealSelection];
-			}
-			
-			if ([privateInputDelegate respondsToSelector:@selector(_scrollRectToVisible:animated:)]) {
-				if ([privateInputDelegate respondsToSelector:@selector(caretRect)]) {
-					CGRect caretRect = [privateInputDelegate caretRect];
-					[privateInputDelegate _scrollRectToVisible:caretRect animated:NO];
-				}
-			}
-			else if ([privateInputDelegate respondsToSelector:@selector(scrollSelectionToVisible:)]) {
-				[(UIView*)privateInputDelegate scrollSelectionToVisible:YES];
-			}
+			[self SS_revealSelection:(UIView*)privateInputDelegate];
         }
+		
+		realPreviousPosition = position;
+	}
+}
+
+%new
+-(void)SS_revealSelection:(UIView*)inputView{
+	UIFieldEditor *fieldEditor = [objc_getClass("UIFieldEditor") sharedFieldEditor];
+	if (fieldEditor && [fieldEditor respondsToSelector:@selector(revealSelection)]) {
+		[fieldEditor revealSelection];
+	}
+	
+	if ([inputView respondsToSelector:@selector(_scrollRectToVisible:animated:)]) {
+		if ([inputView respondsToSelector:@selector(caretRect)]) {
+			CGRect caretRect = [inputView caretRect];
+			[inputView _scrollRectToVisible:caretRect animated:NO];
+		}
+	}
+	else if ([inputView respondsToSelector:@selector(scrollSelectionToVisible:)]) {
+		[inputView scrollSelectionToVisible:YES];
 	}
 }
 
