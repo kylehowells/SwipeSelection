@@ -256,14 +256,7 @@ UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInpu
 }
 
 BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *position1, UITextPosition *position2){
-    return ([tokenizer comparePosition:position1 toPosition:position2] == NSOrderedSame);
-}
-
-float KH_PositiveFloat(float x){
-	if (x<0) {
-		x = -x;
-    }
-	return x;
+	return ([tokenizer comparePosition:position1 toPosition:position2] == NSOrderedSame);
 }
 
 
@@ -507,8 +500,8 @@ Class AKFlickGestureRecognizer(){
 		}
 		
 		// If hasn't started, and it's either moved to little or the user swiped up (accents) kill it.
-		if (hasStarted == NO && KH_PositiveFloat(delta.y) > deadZone) {
-			if (KH_PositiveFloat(delta.y) > KH_PositiveFloat(delta.x)) {
+		if (hasStarted == NO && ABS(delta.y) > deadZone) {
+			if (ABS(delta.y) > ABS(delta.x)) {
 				cancelled = YES;
 			}
 		}
@@ -521,7 +514,7 @@ Class AKFlickGestureRecognizer(){
         hasStarted = YES;
 
         // Make x & y positive for comparision
-        CGFloat positiveX = KH_PositiveFloat(delta.x);
+        CGFloat positiveX = ABS(delta.x);
 //        CGFloat positiveY = ((delta.y >= 0) ? delta.y : (-delta.y));
 
         // Determine the direction it should be going in
