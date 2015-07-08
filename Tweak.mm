@@ -212,6 +212,12 @@
 @end
 
 
+// Safari webview
+@interface WKContentView : UIView
+-(void)moveByOffset:(NSInteger)offset;
+@end
+
+
 
 
 
@@ -319,6 +325,9 @@ Class AKFlickGestureRecognizer(){
     // Location info (may change)
     static UITextRange *startingtextRange = nil;
     static CGPoint previousPosition;
+	
+	// Webview fix
+	static CGFloat xOffset = 0;
 
     // Basic info
     static BOOL shiftHeldDown = NO;
@@ -407,7 +416,9 @@ Class AKFlickGestureRecognizer(){
 	
 	
 	
+	//
 	// Start Gesture stuff
+	//
     if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
         if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
             UITextRange *range = [privateInputDelegate selectedTextRange];
@@ -460,7 +471,9 @@ Class AKFlickGestureRecognizer(){
     else if (longPress || handWriting || !privateInputDelegate || isMoreKey || cancelled) {
         return;
     }
-    else if (gesture.state == UIGestureRecognizerStateBegan) {
+	else if (gesture.state == UIGestureRecognizerStateBegan) {
+		xOffset = 0;
+		
         previousPosition = [gesture locationInView:self];
 
         if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
@@ -659,7 +672,31 @@ Class AKFlickGestureRecognizer(){
 
         isFirstShiftDown = NO;
 
-        if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y)) {
+        if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y))
+		{
+			//
+			// Handle Safari's broken UITextInput support
+			//
+			BOOL webView = [NSStringFromClass([inputDelegate class]) isEqualToString:@"WKContentView"];
+			if (webView) {
+				xOffset += (position.x - previousPoint.x);
+				
+				if (ABS(xOffset) >= offsetPerMove) {
+					BOOL positive = (xOffset > 0);
+					int offset = (ABS(xOffset) / offsetPerMove);
+					
+					for (int i = 0; i < offset; i++) {
+						[(WKContentView*)inputDelegate moveByOffset:(positive ? 1 : -1)];
+					}
+					
+					xOffset += (positive ? -(offset * offsetPerMove) : (offset * offsetPerMove));
+				}
+			}
+			
+			
+			//
+			// Normal text input
+			//
             [privateInputDelegate setSelectedTextRange:textRange];
 			
 			UIFieldEditor *fieldEditor = [objc_getClass("UIFieldEditor") sharedFieldEditor];
