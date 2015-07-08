@@ -135,6 +135,8 @@
 @property(retain, nonatomic) NSString *name;
 @property(nonatomic) int type;
 
+-(int)flickDirection;
+
 - (BOOL)isLeafType;
 - (BOOL)usesKeyCharging;
 - (BOOL)usesAdaptiveKeys;
@@ -240,19 +242,19 @@
 #pragma mark - Helper functions
 
 UITextPosition *KH_MovePositionDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextDirection direction){
-    if (tokenizer && startPosition) {
-        return [tokenizer positionFromPosition:startPosition inDirection:direction offset:1];
-    }
-    return nil;
+	if (tokenizer && startPosition) {
+		return [tokenizer positionFromPosition:startPosition inDirection:direction offset:1];
+	}
+	return nil;
 }
 
 UITextPosition *KH_tokenizerMovePositionWithGranularitInDirection(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *startPosition, UITextGranularity granularity, UITextDirection direction){
 
-    if (tokenizer && startPosition) {
-        return [tokenizer positionFromPosition:startPosition toBoundary:granularity inDirection:direction];
-    }
+	if (tokenizer && startPosition) {
+		return [tokenizer positionFromPosition:startPosition toBoundary:granularity inDirection:direction];
+	}
 
-    return nil;
+	return nil;
 }
 
 BOOL KH_positionsSame(id <UITextInput, UITextInputTokenizer> tokenizer, UITextPosition *position1, UITextPosition *position2){
@@ -294,7 +296,7 @@ Class AKFlickGestureRecognizer(){
 }
 
 - (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer{
-    return NO;
+	return NO;
 }
 @end
 
@@ -308,55 +310,55 @@ Class AKFlickGestureRecognizer(){
 %hook UIKeyboardImpl
 
 -(id)initWithFrame:(CGRect)rect{
-    id orig = %orig;
+	id orig = %orig;
 
-    if (orig){
-        SSPanGestureRecognizer *pan = [[SSPanGestureRecognizer alloc] initWithTarget:self action:@selector(SS_KeyboardGestureDidPan:)];
-        pan.cancelsTouchesInView = NO;
-        [self addGestureRecognizer:pan];
-        [pan release];
-    }
+	if (orig){
+		SSPanGestureRecognizer *pan = [[SSPanGestureRecognizer alloc] initWithTarget:self action:@selector(SS_KeyboardGestureDidPan:)];
+		pan.cancelsTouchesInView = NO;
+		[self addGestureRecognizer:pan];
+		[pan release];
+	}
 
-    return orig;
+	return orig;
 }
 
 %new
 -(void)SS_KeyboardGestureDidPan:(UIPanGestureRecognizer*)gesture{
-    // Location info (may change)
-    static UITextRange *startingtextRange = nil;
-    static CGPoint previousPosition;
+	// Location info (may change)
+	static UITextRange *startingtextRange = nil;
+	static CGPoint previousPosition;
 	
 	// Webview fix
 	static CGFloat xOffset = 0;
 	static CGPoint realPreviousPosition;
 
-    // Basic info
-    static BOOL shiftHeldDown = NO;
-    static BOOL hasStarted = NO;
-    static BOOL longPress = NO;
-    static BOOL handWriting = NO;
-    static BOOL haveCheckedHand = NO;
-    static BOOL isFirstShiftDown = NO; // = first run of the code shift is held, then pick the pivot point
+	// Basic info
+	static BOOL shiftHeldDown = NO;
+	static BOOL hasStarted = NO;
+	static BOOL longPress = NO;
+	static BOOL handWriting = NO;
+	static BOOL haveCheckedHand = NO;
+	static BOOL isFirstShiftDown = NO; // = first run of the code shift is held, then pick the pivot point
 	static BOOL isMoreKey = NO;
-    static int touchesWhenShiting = 0;
+	static int touchesWhenShiting = 0;
 	static BOOL cancelled = NO;
-	
-    int touchesCount = [gesture numberOfTouches];
 
-    UIKeyboardImpl *keyboardImpl = self;
+	int touchesCount = [gesture numberOfTouches];
 
-    if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
-        BOOL nLongTouch = [keyboardImpl isLongPress];
-        if (nLongTouch) {
-            longPress = nLongTouch;
-        }
-    }
+	UIKeyboardImpl *keyboardImpl = self;
+
+	if ([keyboardImpl respondsToSelector:@selector(isLongPress)]) {
+		BOOL nLongTouch = [keyboardImpl isLongPress];
+		if (nLongTouch) {
+			longPress = nLongTouch;
+		}
+	}
 	
 	// Get current layout
-    id currentLayout = nil;
-    if ([keyboardImpl respondsToSelector:@selector(_layout)]) {
-        currentLayout = [keyboardImpl _layout];
-    }
+	id currentLayout = nil;
+	if ([keyboardImpl respondsToSelector:@selector(_layout)]) {
+		currentLayout = [keyboardImpl _layout];
+	}
 	
 	// Check more key, unless it's already ues
 	if ([currentLayout respondsToSelector:@selector(SS_disableSwipes)] && !isMoreKey) {
@@ -364,50 +366,50 @@ Class AKFlickGestureRecognizer(){
 	}
 	
 	// Hand writing recognition
-    if ([currentLayout respondsToSelector:@selector(handwritingPlane)] && !haveCheckedHand) {
-        handWriting = [currentLayout handwritingPlane];
+	if ([currentLayout respondsToSelector:@selector(handwritingPlane)] && !haveCheckedHand) {
+		handWriting = [currentLayout handwritingPlane];
 	}
 	else if ([currentLayout respondsToSelector:@selector(subviews)] && !handWriting && !haveCheckedHand) {
-        NSArray *subviews = [((UIView*)currentLayout) subviews];
-        for (UIView *subview in subviews) {
-			
-            if ([subview respondsToSelector:@selector(subviews)]) {
-                NSArray *arrayToCheck = [subview subviews];
-				
-                for (id view in arrayToCheck) {
-                    NSString *classString = [NSStringFromClass([view class]) lowercaseString];
-                    NSString *substring = [@"Handwriting" lowercaseString];
-					
-                    if ([classString rangeOfString:substring].location != NSNotFound) {
-                        handWriting = YES;
-                        break;
-                    }
-                }
-            }
-        }
-        haveCheckedHand = YES;
-    }
-    haveCheckedHand = YES;
+		NSArray *subviews = [((UIView*)currentLayout) subviews];
+		for (UIView *subview in subviews) {
+
+			if ([subview respondsToSelector:@selector(subviews)]) {
+				NSArray *arrayToCheck = [subview subviews];
+
+				for (id view in arrayToCheck) {
+					NSString *classString = [NSStringFromClass([view class]) lowercaseString];
+					NSString *substring = [@"Handwriting" lowercaseString];
+
+					if ([classString rangeOfString:substring].location != NSNotFound) {
+						handWriting = YES;
+						break;
+					}
+				}
+			}
+		}
+		haveCheckedHand = YES;
+	}
+	haveCheckedHand = YES;
 	
 	
 	
 	// Check for shift key being pressed
 	if ([currentLayout respondsToSelector:@selector(SS_shouldSelect)] && !shiftHeldDown) {
 		shiftHeldDown = [currentLayout SS_shouldSelect];
-        isFirstShiftDown = YES;
-        touchesWhenShiting = touchesCount;
+		isFirstShiftDown = YES;
+		touchesWhenShiting = touchesCount;
 	}
 	
 	
 	// Get the text input
-    id <UITextInputPrivate> privateInputDelegate = nil;
-    if ([keyboardImpl respondsToSelector:@selector(privateInputDelegate)]) {
-        privateInputDelegate = (id)keyboardImpl.privateInputDelegate;
-    }
-    if (!privateInputDelegate && [keyboardImpl respondsToSelector:@selector(inputDelegate)]) {
-        privateInputDelegate = (id)keyboardImpl.inputDelegate;
-    }
-	
+	id <UITextInputPrivate> privateInputDelegate = nil;
+	if ([keyboardImpl respondsToSelector:@selector(privateInputDelegate)]) {
+		privateInputDelegate = (id)keyboardImpl.privateInputDelegate;
+	}
+	if (!privateInputDelegate && [keyboardImpl respondsToSelector:@selector(inputDelegate)]) {
+		privateInputDelegate = (id)keyboardImpl.inputDelegate;
+	}
+
 	// Viber custom text view, which is super buggy with the tockenizer stuff.
 	if (privateInputDelegate != nil && [NSStringFromClass([privateInputDelegate class]) isEqualToString:@"VBEmoticonsContentTextView"]) {
 		privateInputDelegate = nil;
@@ -420,36 +422,36 @@ Class AKFlickGestureRecognizer(){
 	//
 	// Start Gesture stuff
 	//
-    if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
-        if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
-            UITextRange *range = [privateInputDelegate selectedTextRange];
-            if (range && !range.empty) {
-                CGRect screenBounds = [UIScreen mainScreen].bounds;
-                CGRect rect = CGRectMake(screenBounds.size.width * 0.5, screenBounds.size.height * 0.5, 1, 1);
+	if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
+		if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
+			UITextRange *range = [privateInputDelegate selectedTextRange];
+			if (range && !range.empty) {
+				CGRect screenBounds = [UIScreen mainScreen].bounds;
+				CGRect rect = CGRectMake(screenBounds.size.width * 0.5, screenBounds.size.height * 0.5, 1, 1);
 
-                if ([privateInputDelegate respondsToSelector:@selector(firstRectForRange:)]) {
-                    rect = [privateInputDelegate firstRectForRange:range];
-                }
+				if ([privateInputDelegate respondsToSelector:@selector(firstRectForRange:)]) {
+					rect = [privateInputDelegate firstRectForRange:range];
+				}
 
-                UIView *view = nil;
-                if ([privateInputDelegate isKindOfClass:[UIView class]]) {
-                    view = (UIView*)privateInputDelegate;
-                }
-                else if ([privateInputDelegate respondsToSelector:@selector(inputDelegate)]) {
-                    id v = [keyboardImpl inputDelegate];
-                    if (v != privateInputDelegate) {
-                        if ([v isKindOfClass:[UIView class]]) {
-                            view = (UIView*)v;
-                        }
-                    }
-                }
-                
+				UIView *view = nil;
+				if ([privateInputDelegate isKindOfClass:[UIView class]]) {
+					view = (UIView*)privateInputDelegate;
+				}
+				else if ([privateInputDelegate respondsToSelector:@selector(inputDelegate)]) {
+					id v = [keyboardImpl inputDelegate];
+					if (v != privateInputDelegate) {
+						if ([v isKindOfClass:[UIView class]]) {
+							view = (UIView*)v;
+						}
+					}
+				}
+
 				// Should fix this to actually get the onscreen rect
-                UIMenuController *menu = [UIMenuController sharedMenuController];
-                [menu setTargetRect:rect inView:view];
-                [menu setMenuVisible:YES animated:YES];
-            }
-        }
+				UIMenuController *menu = [UIMenuController sharedMenuController];
+				[menu setTargetRect:rect inView:view];
+				[menu setMenuVisible:YES animated:YES];
+			}
+		}
 		
 		// Tell auto correct/suggestions the cursor has moved
 		if ([keyboardImpl respondsToSelector:@selector(updateForChangedSelection)]) {
@@ -465,36 +467,36 @@ Class AKFlickGestureRecognizer(){
 		haveCheckedHand = NO;
 		cancelled = NO;
 
-        touchesCount = 0;
-        touchesWhenShiting = 0;
-        gesture.cancelsTouchesInView = NO;
-    }
-    else if (longPress || handWriting || !privateInputDelegate || isMoreKey || cancelled) {
-        return;
-    }
+		touchesCount = 0;
+		touchesWhenShiting = 0;
+		gesture.cancelsTouchesInView = NO;
+	}
+	else if (longPress || handWriting || !privateInputDelegate || isMoreKey || cancelled) {
+		return;
+	}
 	else if (gesture.state == UIGestureRecognizerStateBegan) {
 		xOffset = 0;
 		
-        previousPosition = [gesture locationInView:self];
+		previousPosition = [gesture locationInView:self];
 		realPreviousPosition = previousPosition;
 
-        if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
-            [startingtextRange release], startingtextRange = nil;
-            startingtextRange = [[privateInputDelegate selectedTextRange] retain];
-        }
+		if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
+			[startingtextRange release], startingtextRange = nil;
+			startingtextRange = [[privateInputDelegate selectedTextRange] retain];
+		}
 	}
 	else if (gesture.state == UIGestureRecognizerStateChanged) {
-        UITextRange *currentRange = startingtextRange;
-        if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
-            currentRange = nil;
-            currentRange = [[[privateInputDelegate selectedTextRange] retain] autorelease];
-        }
+		UITextRange *currentRange = startingtextRange;
+		if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
+			currentRange = nil;
+			currentRange = [[[privateInputDelegate selectedTextRange] retain] autorelease];
+		}
 
-        CGPoint position = [gesture locationInView:self];
+		CGPoint position = [gesture locationInView:self];
 		CGPoint delta = CGPointMake(position.x - previousPosition.x, position.y - previousPosition.y);
-
-        // Should we even run?
-        CGFloat deadZone = 18;
+		
+		// Should we even run?
+		CGFloat deadZone = 18;
 		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 			deadZone = 30;
 		}
@@ -505,110 +507,110 @@ Class AKFlickGestureRecognizer(){
 				cancelled = YES;
 			}
 		}
-        if ((hasStarted == NO && delta.x < deadZone && delta.x > (-deadZone)) || cancelled) {
+		if ((hasStarted == NO && delta.x < deadZone && delta.x > (-deadZone)) || cancelled) {
 			return;
 		}
 		
-        // We are running so shut other things off/down
-        gesture.cancelsTouchesInView = YES;
-        hasStarted = YES;
+		// We are running so shut other things off/down
+		gesture.cancelsTouchesInView = YES;
+		hasStarted = YES;
 
-        // Make x & y positive for comparision
-        CGFloat positiveX = ABS(delta.x);
-//        CGFloat positiveY = ((delta.y >= 0) ? delta.y : (-delta.y));
+		// Make x & y positive for comparision
+		CGFloat positiveX = ABS(delta.x);
+		// CGFloat positiveY = ((delta.y >= 0) ? delta.y : (-delta.y));
 
-        // Determine the direction it should be going in
-        UITextDirection textDirection;
-        if (delta.x < 0) {
-            textDirection = UITextStorageDirectionBackward;
-        }
-        else {
-            textDirection = UITextStorageDirectionForward;
-        }
-
-        
-        // Only do these new big 'jumps' if we've moved far enough
-        CGFloat xMinimum = 10;
-//        CGFloat yMinimum = 1;
-
-        CGFloat neededTouches = 2;
-        if (shiftHeldDown && (touchesWhenShiting >= 2)) {
-            neededTouches = 3;
-        }
-
-        UITextGranularity granularity = UITextGranularityCharacter;
-        // Handle different touches
-        if (touchesCount >= neededTouches) {
-            // make it skip words
-            granularity = UITextGranularityWord;
-            xMinimum = 20;
-        }
-
-        // Should we move the cusour or extend the current range.
-        BOOL extendRange = shiftHeldDown;
-
-        static UITextPosition *pivotPoint = nil;
-
-        // Get the new range
-        UITextPosition *positionStart = currentRange.start;
-        UITextPosition *positionEnd = currentRange.end;
-
-        // The moving position is
-        UITextPosition *_position = nil;
-
-        // If this is the first run we are selecting then pick our pivot point
-        if (isFirstShiftDown) {
-            [pivotPoint release], pivotPoint = nil;
-            if (delta.x > 0 || delta.y < -20) {
-                pivotPoint = [positionStart retain];
-            }
-            else {
-                pivotPoint = [positionEnd retain];
-            }
-        }
-        if (extendRange && pivotPoint) {
-            // Find which position isn't our pivot and move that.
-            BOOL startIsPivot = KH_positionsSame(privateInputDelegate, pivotPoint, positionStart);
-            if (startIsPivot) {
-                _position = positionEnd;
-            }
-            else {
-                _position = positionStart;
-            }
-        }
-        else {
-            _position = (delta.x > 0) ? positionEnd : positionStart;
-
-            if (!pivotPoint) {
-                pivotPoint = _position;
-            }
-        }
+		// Determine the direction it should be going in
+		UITextDirection textDirection;
+		if (delta.x < 0) {
+			textDirection = UITextStorageDirectionBackward;
+		}
+		else {
+			textDirection = UITextStorageDirectionForward;
+		}
 
 
-        // Is it right to left at the current selection point?
-        if ([privateInputDelegate baseWritingDirectionForPosition:_position inDirection:UITextStorageDirectionForward] == UITextWritingDirectionRightToLeft) {
-            if (textDirection == UITextStorageDirectionForward){
-                textDirection = UITextStorageDirectionBackward;
-            }
-            else {
-                textDirection = UITextStorageDirectionForward;
-            }
-        }
+		// Only do these new big 'jumps' if we've moved far enough
+		CGFloat xMinimum = 10;
+		// CGFloat yMinimum = 1;
+
+		CGFloat neededTouches = 2;
+		if (shiftHeldDown && (touchesWhenShiting >= 2)) {
+			neededTouches = 3;
+		}
+
+		UITextGranularity granularity = UITextGranularityCharacter;
+		// Handle different touches
+		if (touchesCount >= neededTouches) {
+			// make it skip words
+			granularity = UITextGranularityWord;
+			xMinimum = 20;
+		}
+
+		// Should we move the cusour or extend the current range.
+		BOOL extendRange = shiftHeldDown;
+
+		static UITextPosition *pivotPoint = nil;
+
+		// Get the new range
+		UITextPosition *positionStart = currentRange.start;
+		UITextPosition *positionEnd = currentRange.end;
+
+		// The moving position is
+		UITextPosition *_position = nil;
+
+		// If this is the first run we are selecting then pick our pivot point
+		if (isFirstShiftDown) {
+			[pivotPoint release], pivotPoint = nil;
+			if (delta.x > 0 || delta.y < -20) {
+				pivotPoint = [positionStart retain];
+			}
+			else {
+				pivotPoint = [positionEnd retain];
+			}
+		}
+		if (extendRange && pivotPoint) {
+			// Find which position isn't our pivot and move that.
+			BOOL startIsPivot = KH_positionsSame(privateInputDelegate, pivotPoint, positionStart);
+			if (startIsPivot) {
+				_position = positionEnd;
+			}
+			else {
+				_position = positionStart;
+			}
+		}
+		else {
+			_position = (delta.x > 0) ? positionEnd : positionStart;
+
+			if (!pivotPoint) {
+				pivotPoint = _position;
+			}
+		}
+
+
+		// Is it right to left at the current selection point?
+		if ([privateInputDelegate baseWritingDirectionForPosition:_position inDirection:UITextStorageDirectionForward] == UITextWritingDirectionRightToLeft) {
+			if (textDirection == UITextStorageDirectionForward){
+				textDirection = UITextStorageDirectionBackward;
+			}
+			else {
+				textDirection = UITextStorageDirectionForward;
+			}
+		}
 
 		
 		// Try and get the tockenizer
-        id <UITextInputTokenizer, UITextInput> tokenizer = nil;
-        if ([privateInputDelegate respondsToSelector:@selector(positionFromPosition:toBoundary:inDirection:)]) {
-            tokenizer = privateInputDelegate;
-        }
-        else if ([privateInputDelegate respondsToSelector:@selector(tokenizer)]) {
-            tokenizer = (id <UITextInput, UITextInputTokenizer>)privateInputDelegate.tokenizer;
-        }
+		id <UITextInputTokenizer, UITextInput> tokenizer = nil;
+		if ([privateInputDelegate respondsToSelector:@selector(positionFromPosition:toBoundary:inDirection:)]) {
+			tokenizer = privateInputDelegate;
+		}
+		else if ([privateInputDelegate respondsToSelector:@selector(tokenizer)]) {
+			tokenizer = (id <UITextInput, UITextInputTokenizer>)privateInputDelegate.tokenizer;
+		}
 		
-        if (tokenizer) {
-            // Move X
-            if (positiveX >= 1) {
-                UITextPosition *_position_old = _position;
+		if (tokenizer) {
+			// Move X
+			if (positiveX >= 1) {
+				UITextPosition *_position_old = _position;
 				
 				if (granularity == UITextGranularityCharacter &&
 					[tokenizer respondsToSelector:@selector(positionFromPosition:inDirection:offset:)] &&
@@ -620,57 +622,58 @@ Class AKFlickGestureRecognizer(){
 				}
 				
 				
-                // If I tried to move it and got nothing back reset it to what I had.
-                if (!_position){ _position = _position_old; }
-                
-                // If I tried to move it a word at a time and nothing happened
-                if (granularity == UITextGranularityWord && (KH_positionsSame(privateInputDelegate, currentRange.start, _position) &&
-                                                             !KH_positionsSame(privateInputDelegate, privateInputDelegate.beginningOfDocument, _position))) {
-                    
-                    _position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, UITextGranularityCharacter, textDirection);
-                    xMinimum = 4;
-                }
-                
-                // Another sanity check
-                if (!_position || positiveX < xMinimum){
+				// If I tried to move it and got nothing back reset it to what I had.
+				if (!_position){ _position = _position_old; }
+
+				// If I tried to move it a word at a time and nothing happened
+				if (granularity == UITextGranularityWord && (KH_positionsSame(privateInputDelegate, currentRange.start, _position) &&
+										!KH_positionsSame(privateInputDelegate, privateInputDelegate.beginningOfDocument, _position))) {
+				
+					_position = KH_tokenizerMovePositionWithGranularitInDirection(tokenizer, _position, UITextGranularityCharacter, textDirection);
+					xMinimum = 4;
+				}
+
+				// Another sanity check
+				if (!_position || positiveX < xMinimum){
 					_position = _position_old;
 				}
-            }
+			}
 			
-            // Move Y
-//            if (positiveY >= yMinimum) {
-//                UITextPosition *_position_old = _position;
-//
-//                CGRect caretRect = [privateInputDelegate caretRectForPosition:_position];
-//
-//                CGFloat yDiff = delta.y * 0.8;
-//
-//                CGPoint newLinePoint = CGPointMake(caretRect.origin.x + (caretRect.size.width * 0.5), caretRect.origin.y + (caretRect.size.height * 0.5) + yDiff);
-//                newLinePoint = [[privateInputDelegate textInputView] convertPoint:newLinePoint toView:nil];
-//                _position = [privateInputDelegate closestPositionToPoint:newLinePoint];
-//
-//                if (!_position){ _position = _position_old; }
-//            }
-        }
+			// Move Y
+			// if (positiveY >= yMinimum) {
+			// 	UITextPosition *_position_old = _position;
 
-        if (!extendRange && _position) {
-            [pivotPoint release], pivotPoint = nil;
-            pivotPoint = [_position retain];
-        }
+//
+			// 	CGRect caretRect = [privateInputDelegate caretRectForPosition:_position];
+			//
+			// 	CGFloat yDiff = delta.y * 0.8;
+			//
+			// 	CGPoint newLinePoint = CGPointMake(caretRect.origin.x + (caretRect.size.width * 0.5), caretRect.origin.y + (caretRect.size.height * 0.5) + yDiff);
+			// 	newLinePoint = [[privateInputDelegate textInputView] convertPoint:newLinePoint toView:nil];
+			// 	_position = [privateInputDelegate closestPositionToPoint:newLinePoint];
+			//
+			// 	if (!_position){ _position = _position_old; }
+			// }
+		}
 
-        // Get a new text range
-        UITextRange *textRange = startingtextRange = nil;
-        if ([privateInputDelegate respondsToSelector:@selector(textRangeFromPosition:toPosition:)]) {
-            textRange = [privateInputDelegate textRangeFromPosition:pivotPoint toPosition:_position];
-        }
- 
-        CGPoint oldPrevious = previousPosition;
-        // Should I change X?
-        if (positiveX > xMinimum) { //|| positiveY > yMinimum) {
+		if (!extendRange && _position) {
+			[pivotPoint release], pivotPoint = nil;
+			pivotPoint = [_position retain];
+		}
+
+		// Get a new text range
+		UITextRange *textRange = startingtextRange = nil;
+		if ([privateInputDelegate respondsToSelector:@selector(textRangeFromPosition:toPosition:)]) {
+			textRange = [privateInputDelegate textRangeFromPosition:pivotPoint toPosition:_position];
+		}
+
+		CGPoint oldPrevious = previousPosition;
+		// Should I change X?
+		if (positiveX > xMinimum) { //|| positiveY > yMinimum) {
 			//CGFloat xDiff = ((delta.x < 0) ? (delta.x + xMinimum) : (delta.x - xMinimum));
 			//CGPoint accountForLeftOver = CGPointMake(position.x - xDiff, position.y);
-            previousPosition = position;
-        }
+			previousPosition = position;
+		}
 
 		isFirstShiftDown = NO;
 		
@@ -700,10 +703,10 @@ Class AKFlickGestureRecognizer(){
 		//
 		// Normal text input
 		//
-        if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y)) {
-            [privateInputDelegate setSelectedTextRange:textRange];
+		if (textRange && (oldPrevious.x != previousPosition.x || oldPrevious.y != previousPosition.y)) {
+			[privateInputDelegate setSelectedTextRange:textRange];
 			[self SS_revealSelection:(UIView*)privateInputDelegate];
-        }
+		}
 		
 		realPreviousPosition = position;
 	}
