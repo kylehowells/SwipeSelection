@@ -184,6 +184,8 @@
 -(void)handleDeleteWithNonZeroInputCount;
 -(void)stopAutoDelete;
 -(BOOL)handwritingPlane;
+
+-(void)updateForChangedSelection;
 @end
 
 
@@ -436,6 +438,12 @@ Class AKFlickGestureRecognizer(){
                 [menu setMenuVisible:YES animated:YES];
             }
         }
+		
+		// Tell auto correct/suggestions the cursor has moved
+		if ([keyboardImpl respondsToSelector:@selector(updateForChangedSelection)]) {
+			[keyboardImpl updateForChangedSelection];
+		}
+		
 
 		shiftHeldDown = NO;
 		isMoreKey = NO;
