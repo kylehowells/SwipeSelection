@@ -423,39 +423,43 @@ Class AKFlickGestureRecognizer(){
 	// Start Gesture stuff
 	//
 	if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
-		if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
-			UITextRange *range = [privateInputDelegate selectedTextRange];
-			if (range && !range.empty) {
-				CGRect screenBounds = [UIScreen mainScreen].bounds;
-				CGRect rect = CGRectMake(screenBounds.size.width * 0.5, screenBounds.size.height * 0.5, 1, 1);
-
-				if ([privateInputDelegate respondsToSelector:@selector(firstRectForRange:)]) {
-					rect = [privateInputDelegate firstRectForRange:range];
-				}
-
-				UIView *view = nil;
-				if ([privateInputDelegate isKindOfClass:[UIView class]]) {
-					view = (UIView*)privateInputDelegate;
-				}
-				else if ([privateInputDelegate respondsToSelector:@selector(inputDelegate)]) {
-					id v = [keyboardImpl inputDelegate];
-					if (v != privateInputDelegate) {
-						if ([v isKindOfClass:[UIView class]]) {
-							view = (UIView*)v;
+		
+		if (hasStarted)
+		{
+			if ([privateInputDelegate respondsToSelector:@selector(selectedTextRange)]) {
+				UITextRange *range = [privateInputDelegate selectedTextRange];
+				if (range && !range.empty) {
+					CGRect screenBounds = [UIScreen mainScreen].bounds;
+					CGRect rect = CGRectMake(screenBounds.size.width * 0.5, screenBounds.size.height * 0.5, 1, 1);
+					
+					if ([privateInputDelegate respondsToSelector:@selector(firstRectForRange:)]) {
+						rect = [privateInputDelegate firstRectForRange:range];
+					}
+					
+					UIView *view = nil;
+					if ([privateInputDelegate isKindOfClass:[UIView class]]) {
+						view = (UIView*)privateInputDelegate;
+					}
+					else if ([privateInputDelegate respondsToSelector:@selector(inputDelegate)]) {
+						id v = [keyboardImpl inputDelegate];
+						if (v != privateInputDelegate) {
+							if ([v isKindOfClass:[UIView class]]) {
+								view = (UIView*)v;
+							}
 						}
 					}
+					
+					// Should fix this to actually get the onscreen rect
+					UIMenuController *menu = [UIMenuController sharedMenuController];
+					[menu setTargetRect:rect inView:view];
+					[menu setMenuVisible:YES animated:YES];
 				}
-
-				// Should fix this to actually get the onscreen rect
-				UIMenuController *menu = [UIMenuController sharedMenuController];
-				[menu setTargetRect:rect inView:view];
-				[menu setMenuVisible:YES animated:YES];
 			}
-		}
-		
-		// Tell auto correct/suggestions the cursor has moved
-		if ([keyboardImpl respondsToSelector:@selector(updateForChangedSelection)]) {
-			[keyboardImpl updateForChangedSelection];
+			
+			// Tell auto correct/suggestions the cursor has moved
+			if ([keyboardImpl respondsToSelector:@selector(updateForChangedSelection)]) {
+				[keyboardImpl updateForChangedSelection];
+			}
 		}
 		
 
