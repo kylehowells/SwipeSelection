@@ -1,0 +1,45 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+	
+	/* ko_KR */
+
+	ENABLED = "활성화 시키기";
+
+	SETTINGS = "설정";
+
+
+	TRIPLE_TAP = "삼중 탭";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "SwipeSelection 을 활성화 하려면 'Shift' 버튼을 삼중 탭 하세요";
+
+
+	SWIPE_AREA = "스와이프 적용 범위";
+	KEYBOARD_SWIPABLE_AREA = "키보드 상에서 스와이프 가능한 범위를 설정합니다";
+
+
+	SENSITIVITY = "민감도";
+	SWIPE_SENSITIVITY = "SwipeSelection 의 민감도를 조정할 수 있습니다";
+
+
+	SWIPE_SPEED = "스와이프 속도";
+	SWIPE_SPEED_FOOTER = "스와이프시 커서의 움직임 속도를 조절할 수 있습니다";
+
+	THREE_FINGER_SWIPE = "세 손가락으로 옮기기";
+	THREE_FINGER_SWIPE_FOOTER = "세 손가락으로 옮기기를 사용해 문서의 처음이나 끝 부분으로 이동할수 있습니다. ( 아이패드에서만 사용하길 권장합니다)";
+
+
+	WHOLE_KEYBOARD = "키보드 전체 영역";
+	EXCLUDING_SPACEBAR = "스페이스 버튼 제외";
+	JUST_SPACEBAR = "스페이스 바 범위만";
+
+
+	NORMAL = "기본 설정";
+	REDUCED = "덜 민감하게";
+	INSENSITIVE = "더 민감하게";
+
+
+	SLOWEST = "가장 느린 속도";
+	SLOWER = "느린 속도";
+	NORMAL = "기본 설정";
+	FASTER = "빠른 속도";
+	FASTEST = "가장 빠른 속도";
+}

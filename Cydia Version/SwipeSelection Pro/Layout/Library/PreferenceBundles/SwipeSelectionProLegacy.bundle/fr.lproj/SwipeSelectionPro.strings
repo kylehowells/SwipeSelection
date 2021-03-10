@@ -1,0 +1,41 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Activer";
+
+	SETTINGS = "Paramètres";
+
+
+	TRIPLE_TAP = "Appuyer trois fois";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Appuyer trois fois sur la touche Shift pour activer/désactiver SwipeSelectionOFF";
+
+
+	SWIPE_AREA = "Zone de glisse";
+	KEYBOARD_SWIPABLE_AREA = "La zone du clavier qui peut swipe";
+
+	WHOLE_KEYBOARD = "Tout le clavier";
+	EXCLUDING_SPACEBAR = "Partout sauf la barre d'espace";
+	JUST_SPACEBAR = "La barre d'espace";
+
+
+	SENSITIVITY = "Sensibilité";
+	SWIPE_SENSITIVITY = "À quelle sensibilité doit être SwipeSelection ?";
+
+	NORMAL = "Normale";
+	REDUCED = "Limitée";
+	INSENSITIVE = "Faible";
+
+
+	SWIPE_SPEED = "Vitesse du swipe";
+	SWIPE_SPEED_FOOTER = "À quelle vitesse le curseur doit bouger quand on swipe";
+
+	SLOWEST = "Très lent";
+	SLOWER = "Lent";
+	NORMAL = "Normal";
+	FASTER = "Rapide";
+	FASTEST = "Très rapide";
+
+
+	THREE_FINGER_SWIPE = "Swipe avec 3 doigts";
+	THREE_FINGER_SWIPE_FOOTER = "Utiliser trois doigts pour aller au début ou à la fin du texte. (Optimisé pour iPad)";
+}

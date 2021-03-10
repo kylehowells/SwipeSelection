@@ -1,0 +1,5 @@
+Filter = {
+    Bundles = ("com.apple.UIKit");
+    CoreFoundationVersion = (847.20, 1240.10);
+};
+SupportsRoot = 1;

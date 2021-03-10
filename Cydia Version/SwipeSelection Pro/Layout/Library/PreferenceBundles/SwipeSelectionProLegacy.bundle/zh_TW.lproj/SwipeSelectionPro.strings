@@ -1,0 +1,43 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "啟用";
+
+	SETTINGS = "設定";
+
+
+	TRIPLE_TAP = "連點三下";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "連點三下 Shift 鍵以切換 SwipeSelection 的開關";
+
+
+	SWIPE_AREA = "滑動區域";
+	KEYBOARD_SWIPABLE_AREA = "鍵盤上可滑動的區域";
+
+
+	SENSITIVITY = "敏感度";
+	SWIPE_SENSITIVITY = "SwipeSelection 對於手指的滑動應該多敏感";
+
+
+	SWIPE_SPEED = "滑動速度";
+	SWIPE_SPEED_FOOTER = "手指滑動時游標應該移動多快";
+
+	THREE_FINGER_SWIPE = "三指滑動";
+	THREE_FINGER_SWIPE_FOOTER = "滑動三指以從文件的開端或尾端開始。（僅建議使用於 iPad";
+
+
+	WHOLE_KEYBOARD = "全鍵盤（預設";
+	EXCLUDING_SPACEBAR = "全鍵盤，排除空白鍵";
+	JUST_SPACEBAR = "只有空白鍵";
+
+
+	NORMAL = "普通";
+	REDUCED = "降低";
+	INSENSITIVE = "靈敏";
+
+
+	SLOWEST = "最慢";
+	SLOWER = "慢";
+	NORMAL = "普通";
+	FASTER = "快";
+	FASTEST = "最快";
+}

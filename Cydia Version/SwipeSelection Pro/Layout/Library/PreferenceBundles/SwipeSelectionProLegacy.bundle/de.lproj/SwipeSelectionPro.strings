@@ -1,0 +1,38 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Aktiviert";
+
+	SETTINGS = "Einstellungen";
+
+	TRIPLE_TAP = "Dreifach Tippen";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Dreimal den Shift Key drücken um SwipeSelection zu aktivieren oder zu deaktivieren";
+
+
+
+	SWIPE_AREA = "Streich Bereich";
+	KEYBOARD_SWIPABLE_AREA = "Der Bereich der Tastatur der zum Swipen verfügbar ist";
+
+	WHOLE_KEYBOARD = "Ganze Tastatur (Standart)";
+	EXCLUDING_SPACEBAR = "Alles aber Leertaste";
+	JUST_SPACEBAR = "Nur die Leertaste";
+
+
+	SENSITIVITY = "Empfindlichkeit";
+	SWIPE_SENSITIVITY = "Wie empfindlich sollte SwipeSelection zu Ihrem Finger sein?";
+	NORMAL = "Normal";
+	REDUCED = "Reduziert";
+	INSENSITIVE = "Unempfindlich";
+
+
+	SWIPE_SPEED = "Wisch Geschwindigkeit";
+	SWIPE_SPEED_FOOTER = "Wie schnell soll sich der Cursor bewegen bei einer Wischbewegung";
+	SLOWEST = "Langsamsten";
+	SLOWER = "Langsam";
+	NORMAL = "Normal";
+	FASTER = "Schneller";
+	FASTEST = "Schnellstes";
+
+	THREE_FINGER_SWIPE = "3 Finger Wisch";
+	THREE_FINGER_SWIPE_FOOTER = "Streichen Sie mit 3 Fingern um an den Anfang oder das Ende eines Dokumentes zu gelangen (nur auf dem iPad empfohlen)";
+}

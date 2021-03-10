@@ -1,0 +1,12 @@
+Package: tw.garynil.Lupinus
+Name: Lupinus
+Architecture: iphoneos-arm
+Description: With Lupinus, you can move the cursor or select text by swiping on keyboard (without 3D touch) as a trackpad with one of your finger. Both vertical and horizontal directions are supported.
+Homepage: https://garynil.tw 
+Author: Gary niL
+Section: Tweaks
+Depends: mobilesubstrate, firmware (>= 9.0), preferenceloader, applist, net.angelxwind.karenprefs, net.angelxwind.karenlocalizer
+Conflicts: com.iky1e.swipeselection, com.iky1e.swipeselection-pro
+Version: 1.0
+Maintainer: Gary Lin <garynil1635@gmail.com>
+Icon: file:///Library/PreferenceBundles/Lupinus.bundle/icon.png

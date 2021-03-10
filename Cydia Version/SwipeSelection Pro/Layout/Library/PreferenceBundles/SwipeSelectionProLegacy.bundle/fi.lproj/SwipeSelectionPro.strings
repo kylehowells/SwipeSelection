@@ -1,0 +1,37 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Käytössä";
+
+	SETTINGS = "Asetukset";
+
+
+	TRIPLE_TAP = "Kolmoisnapautus";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Kolmoisnapauta Vaihto-näppäintä asettaaksesi SwipeSelectionin KÄYTTÖÖN tai POIS KÄYTÖSTÄ.";
+
+
+	SWIPE_AREA = "Pyyhkäisyalue";
+	KEYBOARD_SWIPABLE_AREA = "Näppäimistön alue, jonka tulisi olla pyyhkäistävä";
+	WHOLE_KEYBOARD = "Koko näppäimistö (Oletus)";
+	EXCLUDING_SPACEBAR = "Kaikki paitsi välilyönti";
+	JUST_SPACEBAR = "Vain välilyönti";
+
+
+	SENSITIVITY = "Herkkyys";
+	SWIPE_SENSITIVITY = "Kuinka herkkäSwipeSelectionin tulisi olla sormesi liikkeelle";
+	NORMAL = "Normaali";
+	REDUCED = "Pienempi";
+	INSENSITIVE = "Pienin";
+
+
+	SWIPE_SPEED = "Pyyhkäisynopeus";
+	SWIPE_SPEED_FOOTER = "Kuinka nopeasti kursorin tulisi liikkua pyyhkäistessäsiswipe";
+	SLOWEST = "Hitain";
+	SLOWER = "Hitaampi";
+	NORMAL = "Normaali";
+	FASTER = "Nopeampi";
+	FASTEST = "Nopein";
+
+	THREE_FINGER_SWIPE = "Kolmen sormen pyyhkäisy";
+	THREE_FINGER_SWIPE_FOOTER = "Pyyhkäise kolmella sormella liikkuaksesi dokumentin alkuun tai loppuun. (suositeltavaa vain iPadilla)";
+}

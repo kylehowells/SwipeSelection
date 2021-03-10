@@ -1,0 +1,43 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Etkin";
+
+	SETTINGS = "Ayarlar";
+
+
+	TRIPLE_TAP = "3 Kere Tıklama";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Shift tuşuna 3 kere basılınca SwipeSelection'ı AÇIK veya KAPALI konuma getirir";
+
+
+	SWIPE_AREA = "Kaydırma Alanı";
+	KEYBOARD_SWIPABLE_AREA = "Klavyenin kaydırılabilinen alanını belirler";
+
+
+	SENSITIVITY = "Hassasiyet";
+	SWIPE_SENSITIVITY = "SwipeSelection parmağınızı kaydırmanıza ne kadar hassas olmasını belirler";
+
+
+	SWIPE_SPEED = "Kaydırma Hızı";
+	SWIPE_SPEED_FOOTER = "Siz kaydırdıkça imleç ne kadar hızlı hareket etmesini belirler";
+
+	THREE_FINGER_SWIPE = "3 Parmakla Kaydırma";
+	THREE_FINGER_SWIPE_FOOTER = "3 parmakla kaydırıp dosyanın başına veya sonuna gider. (Sadece iPad için önerilir)";
+
+
+	WHOLE_KEYBOARD = "Bütün Klavye (Varsayılan)";
+	EXCLUDING_SPACEBAR = "Boşluk Tuşu Hariç Heryer";
+	JUST_SPACEBAR = "Sadece Boşluk Tuşu";
+
+
+	NORMAL = "Normal";
+	REDUCED = "Azaltılmış";
+	INSENSITIVE = "Hassas Değil";
+
+
+	SLOWEST = "Çok Yavaş";
+	SLOWER = "Yavaş";
+	NORMAL = "Normal";
+	FASTER = "Hızlı";
+	FASTEST = "Çok Hızlı";
+}

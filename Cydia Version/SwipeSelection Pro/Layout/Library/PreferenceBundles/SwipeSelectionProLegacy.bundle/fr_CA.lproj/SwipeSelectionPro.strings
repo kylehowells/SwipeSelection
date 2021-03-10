@@ -1,0 +1,40 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Permettre";
+
+	SETTINGS = "Paramètres";
+
+
+	TRIPLE_TAP = "Triple-tap";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Triple-tap sur la touche Maj pour habiliter SwipeSelection";
+
+
+	SWIPE_AREA = "Zone de Glissement";
+	KEYBOARD_SWIPABLE_AREA = "La zone du clavier qui doivent être glisseable";
+	WHOLE_KEYBOARD = "Tout le clavier (Défaut)";
+	EXCLUDING_SPACEBAR = "Tous moins la barre d'espace";
+	JUST_SPACEBAR = "Seulement la barre d'espace";
+
+
+	SENSITIVITY = "Sensibilité";
+	SWIPE_SENSITIVITY = "Comment sensible SwipeSelection doit être pour vous déplaçant votre doigt";
+
+	NORMAL = "Normal";
+	REDUCED = "Reduit";
+	INSENSITIVE = "Insensible";
+
+
+	SWIPE_SPEED = "Vitesse de Glissement";
+	SWIPE_SPEED_FOOTER = "Quelle vitesse faut déplacer le curseur lorsque vous tapez";
+
+	SLOWEST = "Plus lent";
+	SLOWER = "Lent";
+	NORMAL = "Normal";
+	FASTER = "Rapide";
+	FASTEST = "Plus Rapide";
+
+
+	THREE_FINGER_SWIPE = "Glissement à trois doigts";
+	THREE_FINGER_SWIPE_FOOTER = "Glisse avec trois doigts pour déplacer au début ou à la fin d'un document. (conseillé uniquement sur iPad)";
+}

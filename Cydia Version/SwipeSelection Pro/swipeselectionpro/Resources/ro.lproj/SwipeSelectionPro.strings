@@ -1,0 +1,43 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Activat";
+
+	SETTINGS = "Setări";
+
+
+	TRIPLE_TAP = "Triplu tap";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Apasă de trei ori tasta shift pentru a activa/dezactiva SwipeSelection";
+
+
+	SWIPE_AREA = "Zonă pentru swipe";
+	KEYBOARD_SWIPABLE_AREA = "Zona tastaturii care nu ar trebui să fie swipe-uita";
+
+
+	SENSITIVITY = "Sensibilitate";
+	SWIPE_SENSITIVITY = "Cât de senzitiv ar trebui să fie SwipeSelection";
+
+
+	SWIPE_SPEED = "Viteza swipe-ului";
+	SWIPE_SPEED_FOOTER = "Cât de rapid ar trebui să se miște cursorul când faci un swipe";
+
+	THREE_FINGER_SWIPE = "Swipe cu 3 degete";
+	THREE_FINGER_SWIPE_FOOTER = "Poți face un swipe cu 3 degete pentru a muta cursorul la începutul sau finalul documentului (doar pe iPad)";
+
+
+	WHOLE_KEYBOARD = "Toată tastatura (implicit)";
+	EXCLUDING_SPACEBAR = "Totul excluzând tasta space";
+	JUST_SPACEBAR = "Doar tasta space";
+
+
+	NORMAL = "Normal";
+	REDUCED = "Redus";
+	INSENSITIVE = "Insenzitiv";
+
+
+	SLOWEST = "Cel mai încet";
+	SLOWER = "Mai încet";
+	NORMAL = "Normal";
+	FASTER = "Mai rapid";
+	FASTEST = "Cel mai rapid";
+}

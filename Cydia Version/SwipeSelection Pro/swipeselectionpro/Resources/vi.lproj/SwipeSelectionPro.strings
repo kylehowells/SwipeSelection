@@ -1,0 +1,42 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Kích hoạt";
+	SETTINGS = "Thiết lập";
+
+
+	TRIPLE_TAP = "Gõ ba lần";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Gõ nhanh ba lần phím shift để chuyển đổi SwipeSelection sang BẬT và TẮT";
+
+
+	SWIPE_AREA = "Khu vực vuốt";
+	KEYBOARD_SWIPABLE_AREA = "Khu vực của bàn phím có thể dùng để vuốt";
+
+
+	SENSITIVITY = "Độ nhạy";
+	SWIPE_SENSITIVITY = "Độ nhạy của SwipeSelection khi bạn di chuyển ngón tay";
+
+
+	SWIPE_SPEED = "Tốc độ vuốt";
+	SWIPE_SPEED_FOOTER = "Tốc độ di chuyển con trỏ khi bạn vuốt";
+
+	THREE_FINGER_SWIPE = "Vuốt bằng 3 ngón";
+	THREE_FINGER_SWIPE_FOOTER = "Vuốt bằng 3 ngón để di chuyển tới đầu hoặc cuối một văn bản. (chỉ hữu dụng trên iPad)";
+
+
+	WHOLE_KEYBOARD = "Toàn bộ bàn phím (Mặc định)";
+	EXCLUDING_SPACEBAR = "Tất cả mọi nơi trừ thanh spacbar";
+	JUST_SPACEBAR = "Chỉ thanh spacebar";
+
+
+	NORMAL = "Trung bình";
+	REDUCED = "Giảm";
+	INSENSITIVE = "Vô hiệu";
+
+
+	SLOWEST = "Chậm nhất";
+	SLOWER = "Chậm vừa";
+	NORMAL = "Trung bình";
+	FASTER = "Nhanh vừa";
+	FASTEST = "Nhanh nhất";
+}

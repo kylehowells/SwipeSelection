@@ -1,0 +1,38 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Engedélyezve";
+
+	SETTINGS = "Beállítások";
+
+
+	TRIPLE_TAP = "Tripla bökés";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Bökj háromszor a shift gombra, hogy ki-be kapcsold a SwipeSelection-t.";
+
+
+	SWIPE_AREA = "Gesztus terület";
+	KEYBOARD_SWIPABLE_AREA = "A billentyűzet azon része, ahol tudsz gesztusokat véghez vinni.";
+
+	WHOLE_KEYBOARD = "Teljes billentyűzet (alapértelmezett)";
+	EXCLUDING_SPACEBAR = "Mindenhol, kivéve a szóköz billentyűn";
+	JUST_SPACEBAR = "Csak a szóköz billentyűn";
+
+
+	SENSITIVITY = "Érzékenység";
+	SWIPE_SENSITIVITY = "Itt módosíthatod, hogy milyen érzékeny legyen a SwipeSelection az ujjad mozgatására.";
+	NORMAL = "Normál";
+	REDUCED = "Csökkentett";
+	INSENSITIVE = "Érzéketlen";
+
+
+	SWIPE_SPEED = "Gesztus sebesség";
+	SWIPE_SPEED_FOOTER = "Itt módosíthatod, hogy milyen gyorsan mozogjon a kurzor, ha húzod az ujjad.";
+	SLOWEST = "Leglassabb";
+	SLOWER = "Lassabb";
+	NORMAL = "Normál";
+	FASTER = "Gyorsabb";
+	FASTEST = "Leggyorssabb";
+
+	THREE_FINGER_SWIPE = "Három ujjas húzás";
+	THREE_FINGER_SWIPE_FOOTER = "Húzd három ujjad, hogy a dokumentum elejére ugorhass. Ez a funkció csak iPaden érhető el.";
+}

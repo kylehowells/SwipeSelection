@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>title</key>
+	<string>SWIPESELECTION</string>
+	
+	<key>items</key>
+	<array>
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.iky1e.swipeselection</string>
+			<key>key</key>
+			<string>SSEnabled</string>
+			<key>label</key>
+			<string>ENABLED</string>
+			<key>PostNotification</key>
+			<string>com.iky1e.swipeselection/settingschanged</string>
+		</dict>
+		
+		
+		
+		
+		
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SETTINGS</string>
+			
+			<key>footerText</key>
+			<string>TRIPLE_TAP_SHIFT_TO_TOGGLE</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.iky1e.swipeselection</string>
+			<key>key</key>
+			<string>SSTripleTap</string>
+			<key>label</key>
+			<string>TRIPLE_TAP</string>
+			<key>PostNotification</key>
+			<string>com.iky1e.swipeselection/settingschanged</string>
+		</dict>
+		
+		
+		
+		
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>KEYBOARD_SWIPABLE_AREA</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<integer>1</integer>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>SSSwipeArea</string>
+			<key>label</key>
+			<string>SWIPE_AREA</string>
+			<key>validTitles</key>
+			<array>
+				<string>WHOLE_KEYBOARD</string>
+				<string>EXCLUDING_SPACEBAR</string>
+				<string>JUST_SPACEBAR</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+			</array>
+			<key>defaults</key>
+			<string>com.iky1e.swipeselection</string>
+			<key>PostNotification</key>
+			<string>com.iky1e.swipeselection/settingschanged</string>
+		</dict>
+		
+		
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>SWIPE_SENSITIVITY</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<integer>1</integer>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>SSSwipeSensitivity</string>
+			<key>label</key>
+			<string>SENSITIVITY</string>
+			<key>validTitles</key>
+			<array>
+				<string>NORMAL</string>
+				<string>REDUCED</string>
+				<string>INSENSITIVE</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+			</array>
+			<key>defaults</key>
+			<string>com.iky1e.swipeselection</string>
+			<key>PostNotification</key>
+			<string>com.iky1e.swipeselection/settingschanged</string>
+		</dict>
+		
+		
+		
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>SWIPE_SPEED_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>SSSwipeSpeed</string>
+			<key>label</key>
+			<string>SWIPE_SPEED</string>
+			<key>validTitles</key>
+			<array>
+				<string>SLOWEST</string>
+				<string>SLOWER</string>
+				<string>NORMAL</string>
+				<string>FASTER</string>
+				<string>FASTEST</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>-2</integer>
+				<integer>-1</integer>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+			<key>defaults</key>
+			<string>com.iky1e.swipeselection</string>
+			<key>PostNotification</key>
+			<string>com.iky1e.swipeselection/settingschanged</string>
+		</dict>
+		
+		
+		
+		
+		
+		
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>THREE_FINGER_SWIPE_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.iky1e.swipeselection</string>
+			<key>key</key>
+			<string>SSTripleSwipe</string>
+			<key>label</key>
+			<string>THREE_FINGER_SWIPE</string>
+			<key>PostNotification</key>
+			<string>com.iky1e.swipeselection/settingschanged</string>
+		</dict>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<!--<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>label</key>
+			<string>Activation Methods</string>
+			<key>isController</key>
+			<true/>
+			<key>bundle</key>
+			<string>LibActivator</string>
+			<key>activatorListener</key>
+			<string>com.iky1e.swipeselection</string>
+		</dict>
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>isStaticText</key>
+			<true/>
+		</dict>
+		
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>isStaticText</key>
+			<true/>
+			<key>footerText</key>
+			<string>SwipeSelection is © 2014 Kyle Howells</string>
+		</dict>-->
+		
+	</array>
+	
+</dict>
+</plist>

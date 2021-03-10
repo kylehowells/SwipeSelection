@@ -1,0 +1,38 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Diaktifkan";
+
+	SETTINGS = "Pengaturan";
+
+
+	TRIPLE_TAP = "Tiga Kali Tekan Layatr";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Tiga kali sentuh tombol Shift untuk mengaktifkan SwipeSelection ON dan OFF-t.";
+
+
+	SWIPE_AREA = "Daerah Menggeser";
+	KEYBOARD_SWIPABLE_AREA = "Area keyboard yang dapat di-swipe";
+
+	WHOLE_KEYBOARD = "Keseluruhan Keyboard (Bawaan)";
+	EXCLUDING_SPACEBAR = "Seluruh keyboard kecuali tombol spasi";
+	JUST_SPACEBAR = "Hanya Tombol Spasi";
+
+
+	SENSITIVITY = "Tingkat kepekaan";
+	SWIPE_SENSITIVITY = "Tingkat kepekaan SwipeSelection untuk gerakan jari anda";
+	NORMAL = "Normal";
+	REDUCED = "Dikurangi";
+	INSENSITIVE = "Kurang Sensitif";
+
+
+	SWIPE_SPEED = "Kecepatan menggeser";
+	SWIPE_SPEED_FOOTER = "Seberapa cepat gerakan kursor ketika anda melakukan sentuhan";
+	SLOWEST = "Paling lambat";
+	SLOWER = "Lebih lambat";
+	NORMAL = "Normal";
+	FASTER = "Cepat";
+	FASTEST = "Paling cepat";
+
+	THREE_FINGER_SWIPE = "Sentuhan dengan 3 jari";
+	THREE_FINGER_SWIPE_FOOTER = "Swipe dengan 3 jari untuk pindah ke awal atau akhir dokumen. (Hanya dianjurkan pada iPad)";
+}

@@ -1,0 +1,39 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "مفعّل";
+
+	SETTINGS = "الإعدادات";
+
+	TRIPLE_TAP = "ثلاث لمسات";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "اضغط على مفتاح SHIFT ثلاث مرات متتالية لتفعيل و إلغاء SwipeSelection";
+
+
+	SWIPE_AREA = "منطقة اللّمس";
+	KEYBOARD_SWIPABLE_AREA = "المنطقة في لوحة المفاتيح التي تتلقّى اللّمسات و الإيماءات";
+
+	WHOLE_KEYBOARD = "كل لوحة المفاتيح (الافتراضي)";
+	EXCLUDING_SPACEBAR = "كل لوحة المفاتيح عدى المسافة";
+	JUST_SPACEBAR = "المسافة فقط";
+
+
+	SENSITIVITY = "الحساسية";
+	SWIPE_SENSITIVITY = "مقدار حساسية SwipeSelection اثناء تحريكك لاصبعك على لوحة المفاتيح";
+
+	NORMAL = "متوسط";
+	REDUCED = "منخفض";
+	INSENSITIVE = "غير حساس";
+
+
+	SWIPE_SPEED = "سرعة التحريك";
+	SWIPE_SPEED_FOOTER = "سرعة المؤشر عند تحريكك لاصبعك على لوحة المفاتيح";
+
+	SLOWEST = "الأبطأ";
+	SLOWER = "بطيء";
+	NORMAL = "متوسط";
+	FASTER = "سريع";
+	FASTEST = "الأسرع";
+
+	THREE_FINGER_SWIPE = "التحريك بثلاث أصابع";
+	THREE_FINGER_SWIPE_FOOTER = "اسحب على لوحة المفاتيح بثلاثة أصابع للانتقال الى نهاية او بداية المستند. (ينصح به فقط على الiPad)";
+}

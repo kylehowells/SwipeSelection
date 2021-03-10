@@ -1,0 +1,37 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Activado";
+	SETTINGS = "Ajustes";
+
+
+	TRIPLE_TAP = "Pulsa Tres Veces";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Toca tres veces la tecla shift para Encender / Apagar SwipeSelection";
+
+
+	SWIPE_AREA = "Area de Deslizamiento";
+	KEYBOARD_SWIPABLE_AREA = "El área del teclado en la que puedes deslizar";
+
+	WHOLE_KEYBOARD = "Todo el teclado (Por defecto)";
+	EXCLUDING_SPACEBAR = "Todo excepto la barra de espacio";
+	JUST_SPACEBAR = "Sólo la barra de espacio";
+
+
+	SENSITIVITY = "Sensibilidad";
+	SWIPE_SENSITIVITY = "Qué tan sensible SwipeSelection debe ser al mover tu dedo";
+	NORMAL = "Normal";
+	REDUCED = "Reducida";
+	INSENSITIVE = "Insensible";
+
+
+	SWIPE_SPEED = "Velocidad de deslizamiento";
+	SWIPE_SPEED_FOOTER = "Qué tan rápido se mueve el cursor mientras deslizas";
+	SLOWEST = "Más lenta";
+	SLOWER = "Lenta";
+	NORMAL = "Normal";
+	FASTER = "Rápido";
+	FASTEST = "Más rápido";
+
+	THREE_FINGER_SWIPE = "Deslice de 3 dedos";
+	THREE_FINGER_SWIPE_FOOTER = "Desliza 3 dedos para ir al principio o final de un documento. (Recomendado sólo para iPad)";
+}

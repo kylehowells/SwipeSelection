@@ -1,0 +1,38 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Enabled";
+
+	SETTINGS = "Settings";
+
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Triple tap the shift key to toggle SwipeSelection ON and OFF";
+
+	TRIPLE_TAP = "Triple Tap";
+
+	KEYBOARD_SWIPABLE_AREA = "The area of the keyboard which should be swipeable";
+
+
+	SWIPE_AREA = "Swipe Area";
+	WHOLE_KEYBOARD = "Whole keyboard (Default)";
+	EXCLUDING_SPACEBAR = "Everything but the spacebar";
+	JUST_SPACEBAR = "Just the spacebar";
+
+
+	SENSITIVITY = "Sensitivity";
+	SWIPE_SENSITIVITY = "How sensitive SwipeSelection should be to you moving your finger";
+	NORMAL = "Normal";
+	REDUCED = "Reduced";
+	INSENSITIVE = "Insensitive";
+
+
+	SWIPE_SPEED = "Swipe Speed";
+	SWIPE_SPEED_FOOTER = "How fast should the cursor move as you swipe";
+	SLOWEST = "Slowest";
+	SLOWER = "Slower";
+	NORMAL = "Normal";
+	FASTER = "Faster";
+	FASTEST = "Fastest";
+
+	THREE_FINGER_SWIPE = "3 Finger Swipe";
+	THREE_FINGER_SWIPE_FOOTER = "Swipe with 3 fingers to move to the beginning or end of a document. (only advisable on iPad)";
+}

@@ -1,0 +1,44 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Ativo";
+
+	SETTINGS = "Definições";
+
+
+	TRIPLE_TAP = "Três Toques";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Três toques no botão shift pata ativar ou desativar o SwipeSelection-t.";
+
+
+	SWIPE_AREA = "Área do Deslize";
+	KEYBOARD_SWIPABLE_AREA = "A área do teclado que deveria ser deslizável";
+
+
+	SENSITIVITY = "Sensitividade";
+	SWIPE_SENSITIVITY = "Quão sensível o SwipeSelection deve ser movendo o seu dedo";
+
+
+	SWIPE_SPEED = "Rapidez do Deslize";
+	SWIPE_SPEED_FOOTER = "Quão rápido deveria ser o movimento do cursor enquanto desliza";
+
+	THREE_FINGER_SWIPE = "Deslize com três dedos";
+	THREE_FINGER_SWIPE_FOOTER = "Deslize com três dedos para mover o início ou fim de um documento. (Apenas recomendado para iPad)";
+
+
+
+	WHOLE_KEYBOARD = "Todo o teclado (Defeito)";
+	EXCLUDING_SPACEBAR = "Tudo menos a barra de espaços";
+	JUST_SPACEBAR = "Apenas a barra de espaços";
+
+
+	NORMAL = "Normal";
+	REDUCED = "Reduzido";
+	INSENSITIVE = "Insensível";
+
+
+	SLOWEST = "O mais lento";
+	SLOWER = "Mais lento";
+	NORMAL = "Normal";
+	FASTER = "Mais rápido";
+	FASTEST = "O mais rápido";
+}

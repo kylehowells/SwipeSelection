@@ -1,0 +1,41 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "מופעל";
+
+	SETTINGS = "הגדרות";
+
+
+	TRIPLE_TAP = "הקשה משולשת";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "לחץ הקשה משולשת על כפתור השיפט (לא בעברית) כדי להדליק ולכבות את SwipeSelection";
+
+
+	SWIPE_AREA = "אזור החלקה";
+	KEYBOARD_SWIPABLE_AREA = "האזור של המקלדת שיהיה ניתן להחליק בו";
+
+	WHOLE_KEYBOARD = "כל המקלדת (ברירת מחדל)";
+	EXCLUDING_SPACEBAR = "הכל מלבד שורת הרווח";
+	JUST_SPACEBAR = "רק שורת הרווח";
+
+
+	SENSITIVITY = "רגישות";
+	SWIPE_SENSITIVITY = "כמה רגיש על SwipeSelection להיות להחלקת האצבע";
+
+	NORMAL = "נורמלי";
+	REDUCED = "מצומצם";
+	INSENSITIVE = "לא רגיש";
+
+
+	SWIPE_SPEED = "מהירות החלקה";
+	SWIPE_SPEED_FOOTER = "כמה מהר על הסמן לזוז כאשר אתה מחליק";
+
+	SLOWEST = "הכי איטי";
+	SLOWER = "איטי יותר";
+	NORMAL = "נורמלי";
+	FASTER = "מהיר יותר";
+	FASTEST = "הכי מהיר";
+
+
+	THREE_FINGER_SWIPE = "החלקה ב3 אצבעות";
+	THREE_FINGER_SWIPE_FOOTER = "החלק עם 3 אצבעות כדי לזוז להתחלת או סוף המסמך (מומלץ רק בiPad)";
+}

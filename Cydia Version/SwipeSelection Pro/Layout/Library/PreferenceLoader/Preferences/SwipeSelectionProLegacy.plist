@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>entry</key>
+	<dict>
+		<key>bundle</key>
+		<string>SwipeSelectionPro</string>
+		<key>cell</key>
+		<string>PSLinkCell</string>
+		<key>detail</key>
+		<string>SwipeSelectionProListController</string>
+		<key>icon</key>
+		<string>SwipeSelectionPro.png</string>
+		<key>isController</key>
+		<string>1</string>
+		<key>label</key>
+		<string>SwipeSelection</string>
+	</dict>
+	<key>pl_filter</key>
+	<dict>
+		<key>CoreFoundationVersion</key>
+		<array>
+			<string>847.20</string>
+			<string>1240.10</string>
+		</array>
+	</dict>
+</dict>
+</plist>

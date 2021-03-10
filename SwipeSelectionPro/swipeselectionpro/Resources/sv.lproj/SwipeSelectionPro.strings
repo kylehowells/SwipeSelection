@@ -1,0 +1,43 @@
+{
+	SWIPESELECTION = "SwipeSelection";
+
+	ENABLED = "Aktiverad";
+
+	SETTINGS = "Inställningar";
+
+
+	TRIPLE_TAP = "Tre tryck";
+	TRIPLE_TAP_SHIFT_TO_TOGGLE = "Tryck tre gånger på shift knappen för att aktivera eller avaktivera SwipeSelection";
+
+
+	SWIPE_AREA = "Drag området";
+	KEYBOARD_SWIPABLE_AREA = "Området på tangentbordet som ska vara till för drag funktionen";
+
+
+	SENSITIVITY = "Känslighet";
+	SWIPE_SENSITIVITY = "Hur känsligt SwipeSelection ska vara när du rör fingret";
+
+
+	SWIPE_SPEED = "Drag Hastighet";
+	SWIPE_SPEED_FOOTER = "Hur fort teckenvisaren ska röra sig när du drar";
+
+	THREE_FINGER_SWIPE = "Tre finger drag";
+	THREE_FINGER_SWIPE_FOOTER = "Drag med tre fingrar för att flytta teckenvisaren till slutet eller början av en text (endast för iPad)";
+
+
+	WHOLE_KEYBOARD = "Hela tangentbordet (Standard)";
+	EXCLUDING_SPACEBAR = "Allt förutom mellanslag";
+	JUST_SPACEBAR = "Bara mellanslag";
+
+
+	NORMAL = "Normal";
+	REDUCED = "Slöare";
+	INSENSITIVE = "Okänslig";
+
+
+	SLOWEST = "Slöast";
+	SLOWER = "Slö";
+	NORMAL = "Normal";
+	FASTER = "Snabbare";
+	FASTEST = "Snabbast";
+}
